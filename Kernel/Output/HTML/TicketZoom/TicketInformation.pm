@@ -267,7 +267,7 @@ sub Run {
                 Value                       => $ValueStrg->{Value},
                 Label                       => $Label,
                 Link                        => $ValueStrg->{Link},
-                EnableLinkPreview           => $ValueStrg->{EnableLinkPreview},
+                LinkPreview                 => $ValueStrg->{LinkPreview},
                 $DynamicFieldConfig->{Name} => $ValueStrg->{Title},
             };
         }
@@ -306,12 +306,12 @@ sub Run {
                     %Ticket,
 
                     # alias for ticket title, Title will be overwritten
-                    TicketTitle       => $Ticket{Title},
-                    Value             => $Field->{Value},
-                    Title             => $Field->{Title},
-                    Link              => $Field->{Link},
-                    EnableLinkPreview => $Field->{EnableLinkPreview},
-                    $Field->{Name}    => $Field->{Title},
+                    TicketTitle    => $Ticket{Title},
+                    Value          => $Field->{Value},
+                    Title          => $Field->{Title},
+                    Link           => $Field->{Link},
+                    LinkPreview    => $Field->{LinkPreview},
+                    $Field->{Name} => $Field->{Title},
                 },
             );
         }

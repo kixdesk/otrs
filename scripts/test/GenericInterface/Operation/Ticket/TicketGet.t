@@ -76,6 +76,8 @@ my %SkipFields = (
     EscalationTimeWorkingTime => 1,
     UpdateTime                => 1,
     UpdateTimeWorkingTime     => 1,
+    Created                   => 1,
+    Changed                   => 1,
 );
 
 # create dynamic field properties
@@ -570,10 +572,61 @@ for my $File (qw(xls txt doc png pdf)) {
     );
 }
 
+my $ArticleFieldID = $DynamicFieldObject->DynamicFieldAdd(
+    Name       => "ADFA$RandomID",
+    FieldOrder => 9993,
+    FieldType  => 'Text',
+    Config     => {
+        DefaultValue => 'Default',
+    },
+    Label      => 'Description',
+    ObjectType => 'Article',
+    ValidID    => 1,
+    UserID     => 1,
+    Reorder    => 0,
+);
+
+push @TestFieldConfig, $DynamicFieldObject->DynamicFieldGet(
+    ID => $ArticleFieldID,
+);
+
+$BackendObject->ValueSet(
+    DynamicFieldConfig => $TestFieldConfig[-1],
+    ObjectID           => $ArticleID42,
+    Value              => 'some value',
+    UserID             => 1,
+);
+
+# Add a second article dynamic field to force an array reference in remote result and make it easier to check
+my $ArticleFieldID2 = $DynamicFieldObject->DynamicFieldAdd(
+    Name       => "ADFA2$RandomID",
+    FieldOrder => 9999,
+    FieldType  => 'Text',
+    Config     => {
+        DefaultValue => 'Default',
+    },
+    Label      => 'Description',
+    ObjectType => 'Article',
+    ValidID    => 1,
+    UserID     => 1,
+    Reorder    => 0,
+);
+
+push @TestFieldConfig, $DynamicFieldObject->DynamicFieldGet(
+    ID => $ArticleFieldID2,
+);
+
 # get articles and attachments
 my @ArticleBox = $TicketObject->ArticleGet(
     TicketID => $TicketID4,
     UserID   => 1,
+);
+
+# get articles and attachments
+my @ArticleBoxDF = $TicketObject->ArticleGet(
+    TicketID      => $TicketID4,
+    UserID        => 1,
+    DynamicFields => 1,
 );
 
 my $CustomerArticleTypes = [ $TicketObject->ArticleTypeList( Type => 'Customer' ) ];
@@ -595,15 +648,31 @@ my @ArticleBoxSenderCustomer = $TicketObject->ArticleGet(
     UserID            => 1,
 );
 
+# Get the list of dynamic fields for object ticket.
+my $TicketDynamicFieldList = $DynamicFieldObject->DynamicFieldList(
+    ObjectType => 'Ticket',
+    ResultType => 'HASH',
+);
+
+# Crate a lookup list for easy search
+my %TicketDynamicFieldLookup = map { 'DynamicField_' . $_ => 1 } values %{$TicketDynamicFieldList};
+
 # start article loop
 ARTICLE:
-for my $Article ( @ArticleBox, @ArticleBoxTypeCustomer, @ArticleBoxSenderAgent, @ArticleBoxSenderCustomer ) {
+for my $Article (
+    @ArticleBox, @ArticleBoxDF, @ArticleBoxTypeCustomer, @ArticleBoxSenderAgent,
+    @ArticleBoxSenderCustomer
+    )
+{
 
     for my $Key ( sort keys %{$Article} ) {
         if ( !$Article->{$Key} ) {
             $Article->{$Key} = '';
         }
         if ( $SkipFields{$Key} ) {
+            delete $Article->{$Key};
+        }
+        if ( $TicketDynamicFieldLookup{$Key} ) {
             delete $Article->{$Key};
         }
     }
@@ -643,6 +712,34 @@ for my $Article ( @ArticleBox, @ArticleBoxTypeCustomer, @ArticleBoxSenderAgent, 
 
 }    # finish article loop
 
+# Get the list of dynamic fields for object ticket.
+my $ArticleDynamicFieldList = $DynamicFieldObject->DynamicFieldList(
+    ObjectType => 'Article',
+    ResultType => 'HASH',
+);
+
+# Crate a lookup list for easy search
+my @ArticleDynamicFields = sort values %{$ArticleDynamicFieldList};
+
+ARTICLE:
+for my $Article (@ArticleBoxDF) {
+
+    my @DynamicFields;
+    for my $DynamicFieldName (@ArticleDynamicFields) {
+
+        push @DynamicFields, {
+            Name  => $DynamicFieldName,
+            Value => $Article->{"DynamicField_$DynamicFieldName"} || '',
+        };
+
+        delete $Article->{"DynamicField_$DynamicFieldName"};
+    }
+
+    if (@DynamicFields) {
+        $Article->{DynamicField} = \@DynamicFields;
+    }
+}
+
 # get the Ticket entry
 my %TicketEntryFour = $TicketObject->TicketGet(
     TicketID      => $TicketID4,
@@ -663,6 +760,25 @@ for my $Key ( sort keys %TicketEntryFour ) {
         delete $TicketEntryFour{$Key};
     }
 }
+
+my %TicketEntryFourDF = $TicketObject->TicketGet(
+    TicketID      => $TicketID4,
+    DynamicFields => 1,
+    UserID        => $UserID,
+);
+
+for my $Key ( sort keys %TicketEntryFourDF ) {
+    if ( !$TicketEntryFourDF{$Key} ) {
+        $TicketEntryFourDF{$Key} = '';
+    }
+    if ( $SkipFields{$Key} ) {
+        delete $TicketEntryFourDF{$Key};
+    }
+}
+
+%TicketEntryFourDF = $FormatDynamicFields->(
+    Ticket => \%TicketEntryFourDF,
+);
 
 # add ticket id
 push @TicketIDs, $TicketID4;
@@ -1054,6 +1170,40 @@ my @Tests = (
         Operation => 'TicketGet',
     },
     {
+        Name           => 'Test Ticket 4 With All Articles and Attachments and DynamicFields',
+        SuccessRequest => '1',
+        RequestData    => {
+            TicketID      => $TicketID4,
+            AllArticles   => 1,
+            Attachments   => 1,
+            DynamicFields => 1,
+        },
+        ExpectedReturnRemoteData => {
+            Success => 1,
+            Data    => {
+                Ticket => {
+                    %TicketEntryFourDF,
+                    Article => \@ArticleBoxDF,
+                },
+            },
+        },
+        ExpectedReturnLocalData => {
+            Success => 1,
+            Data    => {
+                Ticket => [
+                    {
+                        (
+                            %TicketEntryFourDF,
+                            Article => \@ArticleBoxDF,
+                            )
+                    },
+                ],
+            },
+        },
+        Operation => 'TicketGet',
+    },
+
+    {
         Name           => 'Test Ticket 4 With All Articles and Attachments (With sessionID)',
         SuccessRequest => '1',
         RequestData    => {
@@ -1415,6 +1565,14 @@ for my $Test (@Tests) {
                                     $Atm->{ContentAlternative} = '';
                                 }
                             }
+
+                            if ( $Key eq 'DynamicField' ) {
+                                for my $DF ( @{ $Article->{$Key} } ) {
+                                    if ( !$DF->{Value} ) {
+                                        $DF->{Value} = '';
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -1479,6 +1637,13 @@ for my $Test (@Tests) {
                                         $Atm->{ContentAlternative} = '';
                                     }
                                 }
+                                if ( $Key eq 'DynamicField' ) {
+                                    for my $DF ( @{ $Article->{$Key} } ) {
+                                        if ( !$DF->{Value} ) {
+                                            $DF->{Value} = '';
+                                        }
+                                    }
+                                }
                             }
                         }
                     }
@@ -1494,6 +1659,13 @@ for my $Test (@Tests) {
                                 for my $Atm ( @{ $RequesterResult->{Data}->{Ticket}->{Article}->{$Key} } ) {
                                     $Atm->{ContentID}          = '';
                                     $Atm->{ContentAlternative} = '';
+                                }
+                            }
+                            if ( $Key eq 'DynamicField' ) {
+                                for my $DF ( @{ $RequesterResult->{Data}->{Ticket}->{Article}->{$Key} } ) {
+                                    if ( !$DF->{Value} ) {
+                                        $DF->{Value} = '';
+                                    }
                                 }
                             }
                         }

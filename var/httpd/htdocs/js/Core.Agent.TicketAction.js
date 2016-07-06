@@ -119,7 +119,7 @@ Core.Agent.TicketAction = (function (TargetNS) {
         $Element[0].setSelectionRange(Length, Length);
 
         // set customer data for customer user information (AgentTicketEmail) in the compose screen
-        if ($Link.attr('rel') === 'ToCustomer' && Core.Config.Get('CustomerInfoSet')){
+        if ($Link.attr('rel') === 'ToCustomer' && parseInt(Core.Config.Get('CustomerInfoSet'), 10)){
 
             NewData = $('#CustomerData').val();
             NewDataItem = Core.Data.Get($Link.closest('a'), 'customerdatajson');
@@ -168,6 +168,9 @@ Core.Agent.TicketAction = (function (TargetNS) {
      *      This function initializes the ticket action popups.
      */
     TargetNS.Init = function () {
+
+        // Initialize spell check functionality
+        TargetNS.InitSpellCheck();
 
         // Register event for spell checker dialog
         $('#OptionSpellCheck').bind('click', function () {
@@ -356,10 +359,16 @@ Core.Agent.TicketAction = (function (TargetNS) {
      * @name InitSpellCheck
      * @memberof Core.Agent.TicketAction
      * @function
+     * @returns {Boolean} Returns false, if the current action is not the spellchecker iframe
      * @description
      *      This function initializes the necessary stuff for spell check link  in TicketAction screens.
      */
     TargetNS.InitSpellCheck = function () {
+
+        if (Core.Config.Get('Action') !== 'AgentSpelling') {
+            return false;
+        }
+
         // Register onchange event for dropdown and input field to change the radiobutton
         $('#SpellCheck select, #SpellCheck input[type="text"]').bind('change', function () {
             var $Row = $(this).closest('tr'),
@@ -462,6 +471,8 @@ Core.Agent.TicketAction = (function (TargetNS) {
             $TemplateSelect.data('LastValue', $TemplateSelect.val());
         }
     }
+
+    Core.Init.RegisterNamespace(TargetNS, 'APP_MODULE');
 
     return TargetNS;
 }(Core.Agent.TicketAction || {}));

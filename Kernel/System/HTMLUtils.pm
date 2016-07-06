@@ -17,6 +17,7 @@ use MIME::Base64;
 
 our @ObjectDependencies = (
     'Kernel::Config',
+    'Kernel::System::Encode',
     'Kernel::System::Log',
 );
 
@@ -78,6 +79,10 @@ sub ToAscii {
             return;
         }
     }
+
+    # make sure to flag the input string as unicode (utf8) because replacements below can
+    # introduce unicode encoded characters (see bug#10970, bug#11596 and bug#12097 for more info)
+    $Kernel::OM->Get('Kernel::System::Encode')->EncodeInput( \$Param{String} );
 
     # get length of line for forcing line breakes
     my $LineLength = $Self->{'Ticket::Frontend::TextAreaNote'} || 78;
@@ -820,17 +825,21 @@ sub LinkQuote {
         (                                          # $3
             (?: [a-z0-9\-]+ \. )*                  # get subdomains, optional
             [a-z0-9\-]+                            # get top level domain
+            (?:                                    # optional port number
+                [:]
+                [0-9]+
+            )?
             (?:                                    # file path element
                 [\/\.]
-                | [a-zA-Z0-9\-]
+                | [a-zA-Z0-9\-_=%]
             )*
             (?:                                    # param string
                 [\?]                               # if param string is there, "?" must be present
-                [a-zA-Z0-9&;=%\-_]*                # param string content, this will also catch entities like &amp;
+                [a-zA-Z0-9&;=%\-_:\.\/]*           # param string content, this will also catch entities like &amp;
             )?
             (?:                                    # link hash string
                 [\#]                               #
-                [a-zA-Z0-9&;=%\-_]*                # hash string content, this will also catch entities like &amp;
+                [a-zA-Z0-9&;=%\-_:\.\/]*           # hash string content, this will also catch entities like &amp;
             )?
         )
         (?=                                        # $4

@@ -67,7 +67,7 @@ Core.UI = (function (TargetNS) {
                         Core.App.Publish('Event.UI.ToggleWidget', [$WidgetElement]);
                 }
 
-                if (Animate && Core.Config.Get('AnimationEnabled')) {
+                if (Animate) {
                     $WidgetElement.addClass('AnimationRunning').find('.Content').slideToggle("fast", function () {
                         ToggleWidget();
                         $WidgetElement.removeClass('AnimationRunning');
@@ -209,48 +209,38 @@ Core.UI = (function (TargetNS) {
     };
 
     /**
-     * @private
-     * @name ShakeMe
+     * @name Animate
      * @memberof Core.UI
      * @function
-     * @param {jQueryObject} $id - The element to shake.
-     * @param {Array} Position - Array of positions where the bo should be moved to.
-     * @param {Number} PostionEnd - The end position.
+     * @param {jQueryObject} $Element - The element to animate.
+     * @param {String} Type - The animation type as defined in Core.Animations.css, e.g. 'Shake'
      * @description
-     *      "Shakes" the element.
+     *      Animate an element on demand using a css-based animation of the given type
      */
-    function ShakeMe($id, Position, PostionEnd) {
-        var PositionStart = Position.shift();
-        $id.css('left', PositionStart + 'px');
-        if (Position.length > 0) {
-            setTimeout(function () {
-                ShakeMe($id, Position, PostionEnd);
-            }, PostionEnd);
+    TargetNS.Animate = function ($Element, Type) {
+        if (!$Element.length || !Type) {
+            return;
         }
-        else {
-            try {
-                $id.css('position', 'static');
-            }
-            catch (Event) {
-                // no code here
-                $.noop(Event);
-            }
-        }
-    }
+        $Element.addClass('Animation' + Type);
+    };
 
     /**
-     * @name Shake
+     * @name InitMasterAction
      * @memberof Core.UI
      * @function
-     * @param {jQueryObject} $id - The element to shake.
      * @description
-     *      "Shakes" the element.
+     *      Extend click event to the whole table row.
      */
-    TargetNS.Shake = function ($id) {
-        var Position = [15, 30, 15, 0, -15, -30, -15, 0];
-        Position = Position.concat(Position.concat(Position));
-        $id.css('position', 'relative');
-        ShakeMe($id, Position, 20);
+    TargetNS.InitMasterAction = function () {
+        $('.MasterAction').click(function (Event) {
+            var $MasterActionLink = $(this).find('.MasterActionLink');
+
+            // only act if the link was not clicked directly
+            if (Event.target !== $MasterActionLink.get(0)) {
+                window.location = $MasterActionLink.attr('href');
+                return false;
+            }
+        });
     };
 
     /**
@@ -263,6 +253,7 @@ Core.UI = (function (TargetNS) {
     TargetNS.Init = function() {
         Core.UI.InitWidgetActionToggle();
         Core.UI.InitMessageBoxClose();
+        Core.UI.InitMasterAction();
     };
 
     Core.Init.RegisterNamespace(TargetNS, 'APP_GLOBAL');

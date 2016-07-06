@@ -405,7 +405,7 @@ sub Run {
                 %{ $Filters{$FilterColumn}->{Search} },
                 %ColumnFilter,
                 Result => 'COUNT',
-            );
+            ) || 0;
         }
 
         if ( $FilterColumn eq $Filter ) {
@@ -456,7 +456,7 @@ sub Run {
 
     # get all services
     my %AllServices = $ServiceObject->ServiceList(
-        Valid  => 1,
+        Valid  => 0,
         UserID => $Self->{UserID},
     );
 
@@ -476,7 +476,7 @@ sub Run {
             Permission => $Permission,
             UserID     => $Self->{UserID},
             Result     => 'COUNT',
-        );
+        ) || 0;
     }
 
     # add the count for the custom services
@@ -500,7 +500,7 @@ sub Run {
             Permission => $Permission,
             UserID     => $Self->{UserID},
             Result     => 'COUNT',
-        );
+        ) || 0;
 
         next SERVICEID if !$Count;
 

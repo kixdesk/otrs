@@ -41,7 +41,7 @@ sub Run {
         # error page
         return $LayoutObject->ErrorScreen(
             Message => Translatable('No TicketID is given!'),
-            Comment => Translatable('Please contact the admin.'),
+            Comment => Translatable('Please contact the administrator.'),
         );
     }
 
@@ -250,9 +250,20 @@ sub Form {
     my %CustomerUserData = ();
     if ( $Self->{TicketID} ) {
 
-        # set some customer search autocomplete properties
-        $LayoutObject->Block(
-            Name => 'CustomerSearchAutoComplete',
+        # get config object
+        my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
+        # set JS data
+        my $ShowCustTickets   = $ConfigObject->Get('Ticket::Frontend::ShowCustomerTickets');
+        my $AllowMultipleFrom = $ConfigObject->Get('Ticket::Frontend::AgentTicketPhone::AllowMultipleFrom');
+
+        $LayoutObject->AddJSData(
+            Key   => 'CustomerSearch.ShowCustomerTickets',
+            Value => $ShowCustTickets,
+        );
+        $LayoutObject->AddJSData(
+            Key   => 'Ticket::Frontend::AgentTicketPhone::AllowMultipleFrom',
+            Value => $AllowMultipleFrom,
         );
 
         # get ticket data

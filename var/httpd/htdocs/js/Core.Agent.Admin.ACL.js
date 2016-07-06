@@ -38,6 +38,20 @@ Core.Agent.Admin.ACL = (function (TargetNS) {
     var KeysWithoutSubkeys = [ 'ActivityDialog', 'Action', 'Process' ];
 
     /**
+     * @name Init
+     * @memberof Core.Agent.Admin.ACL
+     * @function
+     * @description
+     *      This function initialize the module.
+     */
+    TargetNS.Init = function() {
+        Core.UI.Table.InitTableFilter($('#FilterACLs'), $('#ACLs'), 0);
+        if (Core.Config.Get('Subaction') === 'ACLEdit') {
+            TargetNS.InitACLEdit();
+        }
+    };
+
+    /**
      * @private
      * @name ShowDeleteACLConfirmationDialog
      * @memberof Core.Agent.Admin.ACL
@@ -849,13 +863,14 @@ Core.Agent.Admin.ACL = (function (TargetNS) {
                         $(this),
                         function(Request, Response) {
                             var Data = [],
-                                ItemLC = '';
+                                ItemLC = '',
+                                PossibleActionsList = Core.Config.Get('PossibleActionsList');
 
                             if (Request.term === '**') {
-                                Data = Core.Agent.Admin.ACL.Autocomplete.Action;
+                                Data = PossibleActionsList;
                             }
                             else {
-                                $.each(Core.Agent.Admin.ACL.Autocomplete.Action, function(Index, Item) {
+                                $.each(PossibleActionsList, function(Index, Item) {
                                     ItemLC = Item.value.toLowerCase();
                                     if (ItemLC.indexOf(Request.term.toLowerCase()) !== -1) {
                                         Data.push(Item);
@@ -875,6 +890,8 @@ Core.Agent.Admin.ACL = (function (TargetNS) {
 
         });
     };
+
+    Core.Init.RegisterNamespace(TargetNS, 'APP_MODULE');
 
     return TargetNS;
 }(Core.Agent.Admin.ACL || {}));

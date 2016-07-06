@@ -7005,6 +7005,7 @@
                         <Item Key="Age">2</Item>
                         <Item Key="Changed">1</Item>
                         <Item Key="Created">1</Item>
+                        <Item Key="CustomerCompanyName">1</Item>
                         <Item Key="CustomerID">1</Item>
                         <Item Key="CustomerName">1</Item>
                         <Item Key="CustomerUserID">1</Item>
@@ -7052,6 +7053,7 @@
                         <Item Key="Age">2</Item>
                         <Item Key="Changed">1</Item>
                         <Item Key="Created">1</Item>
+                        <Item Key="CustomerCompanyName">1</Item>
                         <Item Key="CustomerID">1</Item>
                         <Item Key="CustomerName">1</Item>
                         <Item Key="CustomerUserID">1</Item>
@@ -7099,6 +7101,7 @@
                         <Item Key="Age">2</Item>
                         <Item Key="Changed">1</Item>
                         <Item Key="Created">1</Item>
+                        <Item Key="CustomerCompanyName">1</Item>
                         <Item Key="CustomerID">1</Item>
                         <Item Key="CustomerName">1</Item>
                         <Item Key="CustomerUserID">1</Item>
@@ -7146,6 +7149,7 @@
                         <Item Key="Age">2</Item>
                         <Item Key="Changed">1</Item>
                         <Item Key="Created">1</Item>
+                        <Item Key="CustomerCompanyName">1</Item>
                         <Item Key="CustomerID">1</Item>
                         <Item Key="CustomerName">1</Item>
                         <Item Key="CustomerUserID">1</Item>
@@ -7214,7 +7218,7 @@
             <Hash>
                 <Item Key="Module">Kernel::Output::HTML::Dashboard::TicketQueueOverview</Item>
                 <Item Key="Title" Translatable="1">Ticket Queue Overview</Item>
-                <Item Key="Description" Translatable="1">Provides a matrix overview of the tickets per state per queue.</Item>
+                <Item Key="Description" Translatable="1">Provides a matrix overview of the tickets per state per queue</Item>
                 <Item Key="Permission">rw</Item>
                 <Item Key="QueuePermissionGroup">users</Item>
                 <Item Key="Block">ContentLarge</Item>
@@ -7365,6 +7369,7 @@
                         <Item Key="Age">2</Item>
                         <Item Key="Changed">1</Item>
                         <Item Key="Created">1</Item>
+                        <Item Key="CustomerCompanyName">1</Item>
                         <Item Key="CustomerID">1</Item>
                         <Item Key="CustomerName">1</Item>
                         <Item Key="CustomerUserID">1</Item>
@@ -7412,6 +7417,7 @@
                         <Item Key="Age">2</Item>
                         <Item Key="Changed">1</Item>
                         <Item Key="Created">1</Item>
+                        <Item Key="CustomerCompanyName">1</Item>
                         <Item Key="CustomerID">1</Item>
                         <Item Key="CustomerName">1</Item>
                         <Item Key="CustomerUserID">1</Item>
@@ -7459,6 +7465,7 @@
                         <Item Key="Age">2</Item>
                         <Item Key="Changed">1</Item>
                         <Item Key="Created">1</Item>
+                        <Item Key="CustomerCompanyName">1</Item>
                         <Item Key="CustomerID">1</Item>
                         <Item Key="CustomerName">1</Item>
                         <Item Key="CustomerUserID">1</Item>
@@ -7506,6 +7513,7 @@
                         <Item Key="Age">2</Item>
                         <Item Key="Changed">1</Item>
                         <Item Key="Created">1</Item>
+                        <Item Key="CustomerCompanyName">1</Item>
                         <Item Key="CustomerID">1</Item>
                         <Item Key="CustomerName">1</Item>
                         <Item Key="CustomerUserID">1</Item>
@@ -8395,6 +8403,7 @@
                 </NavBar>
                 <Loader>
                     <JavaScript>Core.Agent.CustomerSearch.js</JavaScript>
+                    <JavaScript>Core.Agent.CustomerSearchAutoComplete.js</JavaScript>
                     <JavaScript>Core.Agent.TicketAction.js</JavaScript>
                 </Loader>
             </FrontendModuleReg>
@@ -8452,6 +8461,7 @@
                 </NavBar>
                 <Loader>
                     <JavaScript>Core.Agent.CustomerSearch.js</JavaScript>
+                    <JavaScript>Core.Agent.CustomerSearchAutoComplete.js</JavaScript>
                     <JavaScript>Core.Agent.TicketAction.js</JavaScript>
                 </Loader>
             </FrontendModuleReg>
@@ -8642,9 +8652,13 @@
                 <Loader>
                     <CSS>Core.Agent.TicketProcess.css</CSS>
                     <CSS>Core.Agent.TicketMenuModuleCluster.css</CSS>
+                    <CSS>Core.AllocationList.css</CSS>
                     <JavaScript>thirdparty/jquery-tablesorter-2.0.5/jquery.tablesorter.js</JavaScript>
-                    <JavaScript>Core.UI.Table.Sort.js</JavaScript>
                     <JavaScript>Core.Agent.TicketZoom.js</JavaScript>
+                    <JavaScript>Core.UI.AllocationList.js</JavaScript>
+                    <JavaScript>Core.UI.Table.Sort.js</JavaScript>
+                    <JavaScript>Core.Agent.TableFilters.js</JavaScript>
+                    <JavaScript>Core.Agent.LinkObject.js</JavaScript>
                 </Loader>
             </FrontendModuleReg>
         </Setting>
@@ -8824,6 +8838,9 @@
                 <Description Translatable="1">Ticket History.</Description>
                 <Title Translatable="1">History</Title>
                 <NavBarName>Ticket</NavBarName>
+                <Loader>
+                    <JavaScript>Core.Agent.TicketHistory.js</JavaScript>
+                </Loader>
             </FrontendModuleReg>
         </Setting>
     </ConfigItem>
@@ -8868,7 +8885,9 @@
                 <NavBarName>Ticket</NavBarName>
                 <Loader>
                     <JavaScript>Core.Agent.CustomerSearch.js</JavaScript>
+                    <JavaScript>Core.Agent.CustomerSearchAutoComplete.js</JavaScript>
                     <JavaScript>Core.Agent.TicketAction.js</JavaScript>
+                    <JavaScript>Core.Agent.TicketCompose.js</JavaScript>
                 </Loader>
             </FrontendModuleReg>
         </Setting>
@@ -8882,6 +8901,9 @@
                 <Description Translatable="1">Ticket Compose Bounce Email.</Description>
                 <Title Translatable="1">Bounce</Title>
                 <NavBarName>Ticket</NavBarName>
+                <Loader>
+                    <JavaScript>Core.Agent.TicketBounce.js</JavaScript>
+                </Loader>
             </FrontendModuleReg>
         </Setting>
     </ConfigItem>
@@ -8896,7 +8918,9 @@
                 <NavBarName>Ticket</NavBarName>
                 <Loader>
                     <JavaScript>Core.Agent.CustomerSearch.js</JavaScript>
+                    <JavaScript>Core.Agent.CustomerSearchAutoComplete.js</JavaScript>
                     <JavaScript>Core.Agent.TicketAction.js</JavaScript>
+                    <JavaScript>Core.Agent.TicketForward.js</JavaScript>
                 </Loader>
             </FrontendModuleReg>
         </Setting>
@@ -8912,6 +8936,7 @@
                 <NavBarName>Ticket</NavBarName>
                 <Loader>
                     <JavaScript>Core.Agent.CustomerSearch.js</JavaScript>
+                    <JavaScript>Core.Agent.CustomerSearchAutoComplete.js</JavaScript>
                     <JavaScript>Core.Agent.TicketAction.js</JavaScript>
                 </Loader>
             </FrontendModuleReg>
@@ -8928,6 +8953,7 @@
                 <NavBarName>Ticket</NavBarName>
                 <Loader>
                     <JavaScript>Core.Agent.CustomerSearch.js</JavaScript>
+                    <JavaScript>Core.Agent.CustomerSearchAutoComplete.js</JavaScript>
                     <JavaScript>Core.Agent.TicketAction.js</JavaScript>
                 </Loader>
             </FrontendModuleReg>
@@ -8986,6 +9012,7 @@
                 <NavBarName>Ticket</NavBarName>
                 <Loader>
                     <JavaScript>Core.Agent.TicketAction.js</JavaScript>
+                    <JavaScript>Core.Agent.TicketBulk.js</JavaScript>
                 </Loader>
             </FrontendModuleReg>
         </Setting>
@@ -9031,6 +9058,9 @@
                     <Block>Queue</Block>
                     <Prio>100</Prio>
                 </NavBarModule>
+                <Loader>
+                    <JavaScript>Core.Agent.Admin.Queue.js</JavaScript>
+                </Loader>
             </FrontendModuleReg>
         </Setting>
     </ConfigItem>
@@ -9051,6 +9081,9 @@
                     <Block>Queue</Block>
                     <Prio>200</Prio>
                 </NavBarModule>
+                <Loader>
+                    <JavaScript>Core.Agent.Admin.Template.js</JavaScript>
+                </Loader>
             </FrontendModuleReg>
         </Setting>
     </ConfigItem>
@@ -9062,15 +9095,18 @@
             <FrontendModuleReg>
                 <Group>admin</Group>
                 <Description Translatable="1">This module is part of the admin area of OTRS.</Description>
-                <Title Translatable="1">Templates &lt;-&gt; Queues</Title>
+                <Title Translatable="1">Templates ↔ Queues</Title>
                 <NavBarName>Admin</NavBarName>
                 <NavBarModule>
                     <Module>Kernel::Output::HTML::NavBar::ModuleAdmin</Module>
-                    <Name Translatable="1">Templates &lt;-&gt; Queues</Name>
+                    <Name Translatable="1">Templates ↔ Queues</Name>
                     <Description Translatable="1">Link templates to queues.</Description>
                     <Block>Queue</Block>
                     <Prio>300</Prio>
                 </NavBarModule>
+                <Loader>
+                    <JavaScript>Core.Agent.Admin.QueueTemplates.js</JavaScript>
+                </Loader>
             </FrontendModuleReg>
         </Setting>
     </ConfigItem>
@@ -9091,6 +9127,9 @@
                     <Block>Queue</Block>
                     <Prio>400</Prio>
                 </NavBarModule>
+                <Loader>
+                    <JavaScript>Core.Agent.Admin.AutoResponse.js</JavaScript>
+                </Loader>
             </FrontendModuleReg>
         </Setting>
     </ConfigItem>
@@ -9102,15 +9141,18 @@
             <FrontendModuleReg>
                 <Group>admin</Group>
                 <Description Translatable="1">This module is part of the admin area of OTRS.</Description>
-                <Title Translatable="1">Auto Responses &lt;-&gt; Queues</Title>
+                <Title Translatable="1">Auto Responses ↔ Queues</Title>
                 <NavBarName>Admin</NavBarName>
                 <NavBarModule>
                     <Module>Kernel::Output::HTML::NavBar::ModuleAdmin</Module>
-                    <Name Translatable="1">Auto Responses &lt;-&gt; Queues</Name>
+                    <Name Translatable="1">Auto Responses ↔ Queues</Name>
                     <Description Translatable="1">Link queues to auto responses.</Description>
                     <Block>Queue</Block>
                     <Prio>500</Prio>
                 </NavBarModule>
+                <Loader>
+                    <JavaScript>Core.Agent.Admin.QueueAutoResponse.js</JavaScript>
+                </Loader>
             </FrontendModuleReg>
         </Setting>
     </ConfigItem>
@@ -9131,6 +9173,9 @@
                     <Block>Queue</Block>
                     <Prio>600</Prio>
                 </NavBarModule>
+                <Loader>
+                    <JavaScript>Core.Agent.Admin.Attachment.js</JavaScript>
+                </Loader>
             </FrontendModuleReg>
         </Setting>
     </ConfigItem>
@@ -9142,15 +9187,18 @@
             <FrontendModuleReg>
                 <Group>admin</Group>
                 <Description Translatable="1">This module is part of the admin area of OTRS.</Description>
-                <Title Translatable="1">Attachments &lt;-&gt; Templates</Title>
+                <Title Translatable="1">Attachments ↔ Templates</Title>
                 <NavBarName>Admin</NavBarName>
                 <NavBarModule>
                     <Module>Kernel::Output::HTML::NavBar::ModuleAdmin</Module>
-                    <Name Translatable="1">Attachments &lt;-&gt; Templates</Name>
+                    <Name Translatable="1">Attachments ↔ Templates</Name>
                     <Description Translatable="1">Link attachments to templates.</Description>
                     <Block>Queue</Block>
                     <Prio>700</Prio>
                 </NavBarModule>
+                <Loader>
+                    <JavaScript>Core.Agent.Admin.TemplateAttachment.js</JavaScript>
+                </Loader>
             </FrontendModuleReg>
         </Setting>
     </ConfigItem>
@@ -9171,6 +9219,9 @@
                     <Block>Queue</Block>
                     <Prio>800</Prio>
                 </NavBarModule>
+                <Loader>
+                    <JavaScript>Core.Agent.Admin.Salutation.js</JavaScript>
+                </Loader>
             </FrontendModuleReg>
         </Setting>
     </ConfigItem>
@@ -9191,6 +9242,9 @@
                     <Block>Queue</Block>
                     <Prio>900</Prio>
                 </NavBarModule>
+                <Loader>
+                    <JavaScript>Core.Agent.Admin.Signature.js</JavaScript>
+                </Loader>
             </FrontendModuleReg>
         </Setting>
     </ConfigItem>
@@ -9211,6 +9265,9 @@
                     <Block>Email</Block>
                     <Prio>300</Prio>
                 </NavBarModule>
+                <Loader>
+                    <JavaScript>Core.Agent.Admin.SystemAddress.js</JavaScript>
+                </Loader>
             </FrontendModuleReg>
         </Setting>
     </ConfigItem>
@@ -9255,6 +9312,9 @@
                     <Block>Ticket</Block>
                     <Prio>900</Prio>
                 </NavBarModule>
+                <Loader>
+                    <JavaScript>Core.Agent.Admin.Service.js</JavaScript>
+                </Loader>
             </FrontendModuleReg>
         </Setting>
     </ConfigItem>
@@ -9275,6 +9335,9 @@
                     <Block>Ticket</Block>
                     <Prio>1000</Prio>
                 </NavBarModule>
+                <Loader>
+                    <JavaScript>Core.Agent.Admin.SLA.js</JavaScript>
+                </Loader>
             </FrontendModuleReg>
         </Setting>
     </ConfigItem>
@@ -9295,6 +9358,9 @@
                     <Block>Ticket</Block>
                     <Prio>700</Prio>
                 </NavBarModule>
+                <Loader>
+                    <JavaScript>Core.Agent.Admin.Type.js</JavaScript>
+                </Loader>
             </FrontendModuleReg>
         </Setting>
     </ConfigItem>
@@ -9315,6 +9381,9 @@
                     <Block>Ticket</Block>
                     <Prio>800</Prio>
                 </NavBarModule>
+                <Loader>
+                    <JavaScript>Core.Agent.Admin.State.js</JavaScript>
+                </Loader>
             </FrontendModuleReg>
         </Setting>
     </ConfigItem>
@@ -9335,6 +9404,9 @@
                     <Block>Ticket</Block>
                     <Prio>850</Prio>
                 </NavBarModule>
+                <Loader>
+                    <JavaScript>Core.Agent.Admin.Priority.js</JavaScript>
+                </Loader>
             </FrontendModuleReg>
         </Setting>
     </ConfigItem>
@@ -9371,6 +9443,17 @@
                 <Item Key="Transaction">1</Item>
                 <Item Key="Event"></Item>
             </Hash>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="Ticket::GenericAgentTicketSearch###ExtendedSearchCondition" Required="1" Valid="1">
+        <Description Translatable="1">Allows extended search conditions in ticket search of the generic agent interface. With this feature you can search e. g. ticket title with this kind of conditions like "(*key1*&amp;&amp;*key2*)" or "(*key1*||*key2*)".</Description>
+        <Group>Ticket</Group>
+        <SubGroup>Core::Ticket</SubGroup>
+        <Setting>
+            <Option SelectedID="1">
+                <Item Key="0" Translatable="1">No</Item>
+                <Item Key="1" Translatable="1">Yes</Item>
+            </Option>
         </Setting>
     </ConfigItem>
     <ConfigItem Name="Ticket::GenericAgentRunLimit" Required="0" Valid="1">
@@ -10491,6 +10574,16 @@ Thanks for your help!
             </Array>
         </Setting>
     </ConfigItem>
+    <ConfigItem Name="LinkObject::StrikeThroughLinkedTicketStateTypes" Required="0" Valid="1">
+        <Description Translatable="1">For these state types the ticket numbers are striked through in the link table.</Description>
+        <Group>Ticket</Group>
+        <SubGroup>Core::LinkObject</SubGroup>
+        <Setting>
+            <Array>
+                <Item>merged</Item>
+            </Array>
+        </Setting>
+    </ConfigItem>
     <ConfigItem Name="Stats::DynamicObjectRegistration###Ticket" Required="0" Valid="1">
         <Description Translatable="1">Module to generate ticket statistics.</Description>
         <Group>Ticket</Group>
@@ -10655,6 +10748,7 @@ Thanks for your help!
                 <Title Translatable="1">Dynamic Fields Checkbox Backend GUI</Title>
                 <Loader>
                     <JavaScript>Core.Agent.Admin.DynamicField.js</JavaScript>
+                    <JavaScript>Core.Agent.Admin.DynamicFieldCheckbox.js</JavaScript>
                 </Loader>
             </FrontendModuleReg>
         </Setting>
@@ -11888,6 +11982,80 @@ Thanks for your help!
             </Option>
         </Setting>
     </ConfigItem>
+
+    <ConfigItem Name="LinkObject::ComplexTable::SettingsVisibility###Ticket" Required="0" Valid="1">
+        <Description Translatable="1">Define Actions where a settings button is available in the linked objects widget (LinkObject::ViewMode = "complex"). Please note that these Actions must have registered the following JS and CSS files: Core.AllocationList.css, Core.UI.AllocationList.js, Core.UI.Table.Sort.js, Core.Agent.TableFilters.js.</Description>
+        <Group>Ticket</Group>
+        <SubGroup>Frontend::Agent::LinkObject</SubGroup>
+        <Setting>
+            <Array>
+                <Item>AgentTicketZoom</Item>
+            </Array>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="LinkObject::ComplexTable###Ticket" Required="0" Valid="1">
+        <Description Translatable="1">Define which columns are shown in the linked tickets widget (LinkObject::ViewMode = "complex"). Note: Only Ticket attributes and Dynamic Fields (DynamicField_NameX) are allowed for DefaultColumns. Possible settings: 0 = Disabled, 1 = Available, 2 = Enabled by default.</Description>
+        <Group>Ticket</Group>
+        <SubGroup>Frontend::Agent::LinkObject</SubGroup>
+        <Setting>
+            <Hash>
+                <Item Key="Module">Kernel::Output::HTML::LinkObject::Ticket.pm</Item>
+                <Item Key="DefaultColumns">
+                    <Hash>
+                        <Item Key="Age">1</Item>
+                        <Item Key="Changed">1</Item>
+                        <Item Key="Created">2</Item>
+                        <Item Key="CustomerID">1</Item>
+                        <Item Key="CustomerName">1</Item>
+                        <Item Key="CustomerUserID">1</Item>
+                        <Item Key="EscalationResponseTime">1</Item>
+                        <Item Key="EscalationSolutionTime">1</Item>
+                        <Item Key="EscalationTime">1</Item>
+                        <Item Key="EscalationUpdateTime">1</Item>
+                        <Item Key="TicketNumber">2</Item>
+                        <Item Key="Lock">1</Item>
+                        <Item Key="Owner">1</Item>
+                        <Item Key="PendingTime">1</Item>
+                        <Item Key="Queue">2</Item>
+                        <Item Key="Responsible">1</Item>
+                        <Item Key="Priority">1</Item>
+                        <Item Key="Service">1</Item>
+                        <Item Key="State">2</Item>
+                        <Item Key="SLA">1</Item>
+                        <Item Key="Title">2</Item>
+                        <Item Key="Type">1</Item>
+                    </Hash>
+                </Item>
+                <Item Key="Priority">
+                    <Hash>
+                        <Item Key="Age">110</Item>
+                        <Item Key="Changed">120</Item>
+                        <Item Key="Created">310</Item>
+                        <Item Key="CustomerID">240</Item>
+                        <Item Key="CustomerName">250</Item>
+                        <Item Key="CustomerUserID">260</Item>
+                        <Item Key="EscalationResponseTime">160</Item>
+                        <Item Key="EscalationSolutionTime">150</Item>
+                        <Item Key="EscalationTime">140</Item>
+                        <Item Key="EscalationUpdateTime">170</Item>
+                        <Item Key="TicketNumber">100</Item>
+                        <Item Key="Lock">200</Item>
+                        <Item Key="Owner">220</Item>
+                        <Item Key="PendingTime">130</Item>
+                        <Item Key="Queue">210</Item>
+                        <Item Key="Responsible">230</Item>
+                        <Item Key="Priority">300</Item>
+                        <Item Key="Service">280</Item>
+                        <Item Key="State">190</Item>
+                        <Item Key="SLA">290</Item>
+                        <Item Key="Title">180</Item>
+                        <Item Key="Type">270</Item>
+                    </Hash>
+                </Item>
+            </Hash>
+        </Setting>
+    </ConfigItem>
+
     <!-- collect meta configurations -->
     <ConfigItem Name="Ticket::Frontend::ZoomCollectMeta" Required="0" Valid="1">
         <Description Translatable="1">Whether or not to collect meta information from articles using filters configured in Ticket::Frontend::ZoomCollectMetaFilters.</Description>

@@ -118,6 +118,7 @@ a.Reset {
     vertical-align: middle;
     cursor: pointer;
     position: relative;
+    z-index: 999;
 }
 
 button.Add,
@@ -158,6 +159,7 @@ a.TrashCan i.fa-trash-o {
     position: absolute;
     left: 0px;
     top: 4px;
+    z-index: 998;
 }
 
 button.Reset,
@@ -482,7 +484,9 @@ form label[for] {
 }
 
 form input.Error,
-form textarea.Error {
+form textarea.Error,
+form input.Error:focus,
+form textarea.Error:focus {
     border-color: #ff505e;
 }
 

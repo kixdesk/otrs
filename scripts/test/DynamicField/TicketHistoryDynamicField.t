@@ -25,9 +25,10 @@ my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
 my $BackendObject      = $Kernel::OM->Get('Kernel::System::DynamicField::Backend');
 my $TicketObject       = $Kernel::OM->Get('Kernel::System::Ticket');
 
+# start tests
 # always random number with the same number of digits
 my $RandomID = $Helper->GetRandomNumber();
-$RandomID = substr( $RandomID, -7, 7 );
+$RandomID = substr $RandomID, -7, 7;
 my @FieldIDs;
 
 # create a dynamic field with short name length (21 characters)
@@ -369,7 +370,7 @@ for my $Test (@Tests) {
         Lock         => 'unlock',
         Priority     => '3 normal',
         State        => 'new',
-        CustomerID   => '123465',
+        CustomerID   => 'unittest' . $RandomID,
         CustomerUser => 'customer@example.com',
         OwnerID      => 1,
         UserID       => 1,

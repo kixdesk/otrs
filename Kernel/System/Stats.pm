@@ -1002,8 +1002,9 @@ sub GetStaticFiles {
         if ( defined $Result ) {
             for my $StatID ( @{$Result} ) {
                 my $Data = $Self->StatsGet(
-                    StatID => $StatID,
-                    UserID => $Param{UserID},
+                    StatID             => $StatID,
+                    UserID             => $Param{UserID},
+                    NoObjectAttributes => 1,
                 );
 
                 # check witch one are static statistics
@@ -2248,7 +2249,8 @@ sub _GenerateDynamicStats {
 
                     my $TimeStamp = $TimeObject->CurrentTimestamp();
 
-          # add the selected timezone to the current timestamp to get the real start timestamp for the selected timezone
+                    # add the selected timezone to the current timestamp
+                    # to get the real start timestamp for the selected timezone
                     if ( $Param{TimeZone} ) {
                         $TimeStamp = $Self->_FromOTRSTimeZone(
                             String   => $TimeStamp,
@@ -2517,12 +2519,20 @@ sub _GenerateDynamicStats {
             $Minute = 0;
             $Hour   = 0;
             $Day    = 1;
+
+            # calculate the start month for the quarter
+            my $QuarterNum = ceil( $Month / 3 );
+            $Month = ( $QuarterNum * 3 ) - 2;
         }
         elsif ( $Element->{SelectedValues}[0] eq 'HalfYear' ) {
             $Second = 0;
             $Minute = 0;
             $Hour   = 0;
             $Day    = 1;
+
+            # calculate the start month for the half-year
+            my $HalfYearNum = ceil( $Month / 6 );
+            $Month = ( $HalfYearNum * 6 ) - 5;
         }
         elsif ( $Element->{SelectedValues}[0] eq 'Year' ) {
             $Second = 0;
@@ -2753,6 +2763,7 @@ sub _GenerateDynamicStats {
     my %ValueSeries;
     my @ArraySelected;
     my $ColumnName = '';
+    my $HeaderLineStart;
 
     # give me all possible elements for Value Series
     REF1:
@@ -2776,8 +2787,9 @@ sub _GenerateDynamicStats {
             next REF1;
         }
 
-        # timescale elements need a special handling
-        @HeaderLine = ();
+        # timescale elements need a special handling, so we save the start value and reset the HeaderLine
+        $HeaderLineStart = $HeaderLine[0];
+        @HeaderLine      = ();
 
         # these all makes only sense, if the count of xaxis is 1
         if ( $Ref1->{SelectedValues}[0] eq 'Year' ) {
@@ -2814,6 +2826,9 @@ sub _GenerateDynamicStats {
                 $VSHour   = 0;
                 $VSDay    = 1;
                 $VSMonth  = 1;
+
+                # remove the year from the HeaderLineStart value to have the same values as the new generated HeaderLine
+                $HeaderLineStart =~ s{ -\d\d\d\d }{}xms;
             }
             elsif ( $Element->{SelectedValues}[0] eq 'HalfYear' ) {
 
@@ -2826,6 +2841,9 @@ sub _GenerateDynamicStats {
                 $VSHour   = 0;
                 $VSDay    = 1;
                 $VSMonth  = 1;
+
+                # remove the year from the HeaderLineStart value to have the same values as the new generated HeaderLine
+                $HeaderLineStart =~ s{ -\d\d\d\d }{}xms;
             }
 
             $ColumnName = 'Year';
@@ -2952,6 +2970,9 @@ sub _GenerateDynamicStats {
                     0, 0, 1
                 );
             }
+
+            # remove the value for this selected value
+            $HeaderLineStart = '';
         }
         elsif ( $Ref1->{SelectedValues}[0] eq 'Week' ) {
             while (
@@ -2982,6 +3003,9 @@ sub _GenerateDynamicStats {
                     0, 0, 1
                 );
             }
+
+            # remove the value for this selected value
+            $HeaderLineStart = '';
         }
         elsif ( $Ref1->{SelectedValues}[0] eq 'Day' ) {
             while (
@@ -3250,8 +3274,33 @@ sub _GenerateDynamicStats {
         }
     }
 
+    my $RowCounter = 0;
+
     # fill up empty array elements, e.g month as value series (February has 28 day and Januar 31)
     for my $Row (@DataArray) {
+
+        $RowCounter++;
+
+        if ( $RowCounter == 1 && $HeaderLineStart ) {
+
+            # determine the skipping counter
+            my $SkippingCounter = 0;
+
+            INDEX:
+            for my $Index ( 1 .. $#HeaderLine ) {
+
+                if ( $HeaderLine[$Index] eq $HeaderLineStart ) {
+                    last INDEX;
+                }
+
+                $SkippingCounter++;
+            }
+
+            for my $Index ( 1 .. $SkippingCounter ) {
+                splice @{$Row}, $Index, 0, '';
+            }
+        }
+
         for my $Index ( 1 .. $#HeaderLine ) {
             if ( !defined $Row->[$Index] ) {
                 $Row->[$Index] = '';

@@ -138,6 +138,8 @@ Core.Agent = (function (TargetNS) {
             }
         }
 
+        TargetNS.ReorderNavigationItems(Core.Config.Get('NavbarOrderItems'));
+
         $('#Navigation > li')
             .addClass('CanDrag')
             .filter(function () {
@@ -153,7 +155,7 @@ Core.Agent = (function (TargetNS) {
 
                 // special treatment for the first menu level: by default this opens submenus only via click,
                 //  but the config setting "OpenMainMenuOnHover" also activates opening on hover for it.
-                if ($('body').hasClass('Visible-ScreenXL') && !Core.App.Responsive.IsTouchDevice() && ($Element.parent().attr('id') !== 'Navigation' || Core.Config.Get('OpenMainMenuOnHover'))) {
+                if ($('body').hasClass('Visible-ScreenXL') && !Core.App.Responsive.IsTouchDevice() && ($Element.parent().attr('id') !== 'Navigation' || parseInt(Core.Config.Get('OpenMainMenuOnHover'), 10))) {
 
                     // Set Timeout for opening nav
                     CreateSubnavOpenTimeout($Element, function () {
@@ -204,11 +206,11 @@ Core.Agent = (function (TargetNS) {
 
                 // if OpenMainMenuOnHover is enabled, clicking the item
                 // should lead to the link as regular
-                if ($('body').hasClass('Visible-ScreenXL') && !Core.App.Responsive.IsTouchDevice() && Core.Config.Get('OpenMainMenuOnHover')) {
+                if ($('body').hasClass('Visible-ScreenXL') && !Core.App.Responsive.IsTouchDevice() && parseInt(Core.Config.Get('OpenMainMenuOnHover'), 10)) {
                     return true;
                 }
 
-                if (!Core.Config.Get('OTRSBusinessIsInstalled') && $Target.hasClass('OTRSBusinessRequired')) {
+                if (!parseInt(Core.Config.Get('OTRSBusinessIsInstalled'), 10) && $Target.hasClass('OTRSBusinessRequired')) {
                     return true;
                 }
 
@@ -217,7 +219,7 @@ Core.Agent = (function (TargetNS) {
                 // That means that a subnavigation in mobile mode is still collapsed/expanded,
                 // although the link to the new page is clicked
                 // we force the redirect with this workaround
-                if ($Target.closest('ul').attr('id') !== 'Navigation') {
+                if (navigator && navigator.userAgent && navigator.userAgent.match(/Windows Phone/i) && $Target.closest('ul').attr('id') !== 'Navigation') {
                     window.location.href = $Target.closest('a').attr('href');
                     Event.stopPropagation();
                     Event.preventDefault();
@@ -268,7 +270,7 @@ Core.Agent = (function (TargetNS) {
             });
 
         // make the navigation items sortable (if enabled)
-        if (Core.Config.Get('MenuDragDropEnabled') === 1) {
+        if (parseInt(Core.Config.Get('MenuDragDropEnabled'), 10) === 1) {
             Core.App.Subscribe('Event.App.Responsive.ScreenXL', function () {
                 $('#NavigationContainer').css('height', '35px');
                 Core.UI.DnD.Sortable(
@@ -290,10 +292,10 @@ Core.Agent = (function (TargetNS) {
                             });
 
                             // save the new order to the users preferences
-                            TargetNS.PreferencesUpdate('UserNavBarItemsOrder', Core.JSON.Stringify(Items));
-
-                            $('#Navigation').after('<i class="fa fa-check"></i>').next('.fa-check').css('left', $('#Navigation').outerWidth() + 10).delay(200).fadeIn(function() {
-                                $(this).delay(1500).fadeOut();
+                            TargetNS.PreferencesUpdate('UserNavBarItemsOrder', Core.JSON.Stringify(Items), function() {
+                                $('#Navigation').after('<i class="fa fa-check"></i>').next('.fa-check').css('left', $('#Navigation').outerWidth() + 10).delay(200).fadeIn(function() {
+                                    $(this).delay(1500).fadeOut();
+                                });
                             });
 
                             // make sure to re-size the nav container to its initial height after
@@ -448,7 +450,9 @@ Core.Agent = (function (TargetNS) {
 
         var CurrentItems;
 
-        if (NavbarCustomOrderItems && Core.Config.Get('MenuDragDropEnabled') === 1) {
+        if (NavbarCustomOrderItems && parseInt(Core.Config.Get('MenuDragDropEnabled'), 10) === 1) {
+
+            NavbarCustomOrderItems = JSON.parse(NavbarCustomOrderItems);
 
             CurrentItems = $('#Navigation').children('li').get();
             CurrentItems.sort(function(a, b) {
@@ -456,7 +460,6 @@ Core.Agent = (function (TargetNS) {
 
                 IDA = $(a).attr('id');
                 IDB = $(b).attr('id');
-
 
                 if ($.inArray(IDA, NavbarCustomOrderItems) < $.inArray(IDB, NavbarCustomOrderItems)) {
                     return -1;
@@ -471,9 +474,6 @@ Core.Agent = (function (TargetNS) {
 
             // append the reordered items
             $('#Navigation').empty().append(CurrentItems);
-
-            // re-init navigation
-            InitNavigation();
         }
 
         $('#Navigation').hide().css('visibility', 'visible').show();
@@ -633,10 +633,11 @@ Core.Agent = (function (TargetNS) {
      * @returns {Boolean} returns true.
      * @param {jQueryObject} Key - The name of the setting.
      * @param {jQueryObject} Value - The value of the setting.
+     * @param {Function} SuccessCallback - Callback function to be executed on AJAX success (optional).
      * @description
      *      This function sets session and preferences setting at runtime.
      */
-    TargetNS.PreferencesUpdate = function (Key, Value) {
+    TargetNS.PreferencesUpdate = function (Key, Value, SuccessCallback) {
         var URL = Core.Config.Get('Baselink'),
             Data = {
                 Action: 'AgentPreferences',
@@ -644,8 +645,12 @@ Core.Agent = (function (TargetNS) {
                 Key: Key,
                 Value: Value
             };
-        // We need no callback here, but the called function needs one, so we send an "empty" function
-        Core.AJAX.FunctionCall(URL, Data, $.noop);
+
+        if (!$.isFunction(SuccessCallback)) {
+            SuccessCallback = $.noop;
+        }
+
+        Core.AJAX.FunctionCall(URL, Data, SuccessCallback);
         return true;
     };
 

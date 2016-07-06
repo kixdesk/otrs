@@ -240,13 +240,25 @@ dd {
 }
 
 .ErrorBox {
-    color: #FFF;
-    background: #D41111;
+    color: rgba(255, 255, 255, 0.9);
+    background: #B83850;
 }
 
 .SuccessBox {
     color: #FFF;
-    background: #08A503;
+    background: #8FB738;
+}
+
+.ErrorBox span a,
+.SuccessBox span a {
+    color: #fff;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+    transition: all ease 0.2s;
+}
+
+.ErrorBox span a:hover,
+.SuccessBox span a:hover {
+    border-color: #fff;
 }
 
 /**
@@ -558,21 +570,11 @@ dd {
 }
 
 /**
- * @subsection  Customizable logos
- */
-#LoginLogo {
-    background: transparent url(../img/loginlogo_default.png) center no-repeat;
-    background-size: contain;
-    height: 100px;
-}
-
-
-/**
  * @subsection  MessageBox
  */
 
 .MessageBox {
-    margin: 5px 18px 0 10px;
+    margin: 5px;
     background: #F7AE40;
     position: relative;
     z-index: 1;
@@ -610,12 +612,12 @@ dd {
 }
 
 .MessageBox.Error {
-    background: #F25C5C;
+    background: #b8384e;
 }
 
 .MessageBox.Error p,
 .MessageBox.Error a {
-    color: #000;
+    color: rgba(255, 255, 255, 0.8);
 }
 
 .MessageBox.Confirmation {

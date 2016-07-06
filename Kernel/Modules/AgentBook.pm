@@ -62,9 +62,20 @@ sub Run {
     # get layout object
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
 
-    # build customer search auto-complete field
-    $LayoutObject->Block(
-        Name => 'CustomerSearchAutoComplete',
+    # get config object
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+
+    # set JS data
+    my $ShowCustTickets   = $ConfigObject->Get('Ticket::Frontend::ShowCustomerTickets');
+    my $AllowMultipleFrom = $ConfigObject->Get('Ticket::Frontend::AgentTicketPhone::AllowMultipleFrom');
+
+    $LayoutObject->AddJSData(
+        Key   => 'CustomerSearch.ShowCustomerTickets',
+        Value => $ShowCustTickets,
+    );
+    $LayoutObject->AddJSData(
+        Key   => 'Ticket::Frontend::AgentTicketPhone::AllowMultipleFrom',
+        Value => $AllowMultipleFrom,
     );
 
     if (%List) {
@@ -72,6 +83,7 @@ sub Run {
             Name => 'SearchResult',
         );
 
+        my %AddressBook;
         my $Count = 1;
         for ( reverse sort { $List{$b}->{Email} cmp $List{$a}->{Email} } keys %List ) {
             $LayoutObject->Block(
@@ -84,8 +96,17 @@ sub Run {
                         ->Encode( Data => { $List{$_}->{Email} => $List{$_}->{CustomerKey} } ),
                 },
             );
+
+            $AddressBook{$Count} = $List{$_}->{Email};
             $Count++;
         }
+
+        # add data to JS
+        $LayoutObject->AddJSData(
+            Key   => 'AddressBook',
+            Value => \%AddressBook,
+        );
+
     }
 
     # start with page ...

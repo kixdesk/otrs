@@ -47,7 +47,7 @@ sub Run {
     if ( !$Self->{TicketID} ) {
         return $LayoutObject->ErrorScreen(
             Message => Translatable('No TicketID is given!'),
-            Comment => Translatable('Please contact the admin.'),
+            Comment => Translatable('Please contact the administrator.'),
         );
     }
 
@@ -696,7 +696,7 @@ sub Run {
                             'Could not perform validation on field %s!',
                             $DynamicFieldConfig->{Label},
                         ),
-                        Comment => Translatable('Please contact the admin.'),
+                        Comment => Translatable('Please contact the administrator.'),
                     );
                 }
 
@@ -834,7 +834,7 @@ sub Run {
         if ( !$ArticleTypeID ) {
             return $LayoutObject->ErrorScreen(
                 Message => Translatable('Can not determine the ArticleType!'),
-                Comment => Translatable('Please contact the admin.'),
+                Comment => Translatable('Please contact the administrator.'),
             );
         }
 
@@ -1637,14 +1637,6 @@ sub _Mask {
         OnlyDynamicFields => 1
     );
 
-    # create a string with the quoted dynamic field names separated by commas
-    if ( IsArrayRefWithData($DynamicFieldNames) ) {
-        FIELD:
-        for my $Field ( @{$DynamicFieldNames} ) {
-            $Param{DynamicFieldNamesStrg} .= ", '" . $Field . "'";
-        }
-    }
-
     # get needed objects
     my $LayoutObject = $Kernel::OM->Get('Kernel::Output::HTML::Layout');
     my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
@@ -1705,9 +1697,17 @@ sub _Mask {
         );
     }
 
-    # build customer search auto-complete field
-    $LayoutObject->Block(
-        Name => 'CustomerSearchAutoComplete',
+    # set JS data
+    my $ShowCustTickets   = $ConfigObject->Get('Ticket::Frontend::ShowCustomerTickets');
+    my $AllowMultipleFrom = $ConfigObject->Get('Ticket::Frontend::AgentTicketPhone::AllowMultipleFrom');
+
+    $LayoutObject->AddJSData(
+        Key   => 'CustomerSearch.ShowCustomerTickets',
+        Value => $ShowCustTickets,
+    );
+    $LayoutObject->AddJSData(
+        Key   => 'Ticket::Frontend::AgentTicketPhone::AllowMultipleFrom',
+        Value => $AllowMultipleFrom,
     );
 
     # prepare errors!
@@ -1854,39 +1854,33 @@ sub _Mask {
         );
     }
 
+    my @EmailAddressesCc;
+
     # set preselected values for Cc field
     if ( $Param{Cc} && $Param{Cc} ne '' && !$CustomerCounterCc ) {
-        $LayoutObject->Block(
-            Name => 'PreFilledCc',
-        );
 
         # split To values
-        for my $Email ( Mail::Address->parse( $Param{Cc} ) ) {
-            $LayoutObject->Block(
-                Name => 'PreFilledCcRow',
-                Data => {
-                    Email => $Email->address(),
-                },
-            );
-        }
+        @EmailAddressesCc = map { $_->address() } ( Mail::Address->parse( $Param{Cc} ) );
+
+        $LayoutObject->AddJSData(
+            Key   => 'EmailAddressesCc',
+            Value => \@EmailAddressesCc,
+        );
+
         $Param{Cc} = '';
     }
 
     # set preselected values for To field
     if ( $Param{To} ne '' && !$CustomerCounter ) {
-        $LayoutObject->Block(
-            Name => 'PreFilledTo',
-        );
 
         # split To values
-        for my $Email ( Mail::Address->parse( $Param{To} ) ) {
-            $LayoutObject->Block(
-                Name => 'PreFilledToRow',
-                Data => {
-                    Email => $Email->address(),
-                },
-            );
-        }
+        my @EmailAddressesTo = map { $_->address() } ( Mail::Address->parse( $Param{To} ) );
+
+        $LayoutObject->AddJSData(
+            Key   => 'EmailAddressesTo',
+            Value => \@EmailAddressesTo,
+        );
+
         $Param{To} = '';
     }
 
@@ -2034,6 +2028,11 @@ sub _Mask {
             Data => $Attachment,
         );
     }
+
+    $LayoutObject->AddJSData(
+        Key   => 'DynamicFieldNames',
+        Value => $DynamicFieldNames,
+    );
 
     # create & return output
     return $LayoutObject->Output(

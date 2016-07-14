@@ -111,7 +111,7 @@ sub Run {
         Link           => $LinkPage,
         AJAXReplace    => 'Dashboard' . $Self->{Name},
         IDPrefix       => 'Dashboard' . $Self->{Name},
-        KeepScriptTags => $Param{AJAX},
+        AJAX => $Param{AJAX},
     );
 
     $LayoutObject->Block(
@@ -315,7 +315,7 @@ sub Run {
         );
 
         my $TicketCountClosed = $TicketObject->TicketSearch(
-            StateType            => 'Closed',
+            StateType            => 'closed',
             CustomerUserLoginRaw => $CustomerKey,
             Result               => 'COUNT',
             Permission           => $Self->{Config}->{Permission},
@@ -402,7 +402,7 @@ sub Run {
             %{ $Self->{Config} },
             Name => $Self->{Name},
         },
-        KeepScriptTags => $Param{AJAX},
+        AJAX => $Param{AJAX},
     );
 
     return $Content;

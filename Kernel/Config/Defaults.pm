@@ -30,6 +30,9 @@ use lib dirname($Bin) . '/Custom';
 use File::stat;
 use Digest::MD5;
 
+use Exporter qw(import);
+our @EXPORT = qw(Translatable);
+
 our @ObjectDependencies = ();
 
 sub LoadDefaults {
@@ -175,6 +178,7 @@ sub LoadDefaults {
         'hi' => 'Hindi',
         'hr' => 'Croatian',
         'hu' => 'Hungarian',
+        'id' => 'Indonesian',
         'it' => 'Italian',
         'ja' => 'Japanese',
         'lt' => 'Lithuanian',
@@ -224,6 +228,7 @@ sub LoadDefaults {
         'hi' => 'हिन्दी',
         'hr' => 'Hrvatski',
         'hu' => 'Magyar',
+        'id' => 'Bahasa Indonesia',
         'it' => 'Italiano',
         'ja' => '日本語',
         'lt' => 'Lietuvių kalba',
@@ -956,6 +961,7 @@ sub LoadDefaults {
         'thirdparty/stacktrace-0.6.4/stacktrace.js',
         'thirdparty/jquery-pubsub/pubsub.js',
         'thirdparty/jquery-jstree-3.1.1/jquery.jstree.js',
+        'thirdparty/nunjucks-2.4.2/nunjucks.js',
         'Core.Init.js',
         'Core.Debug.js',
         'Core.Exception.js',
@@ -964,6 +970,7 @@ sub LoadDefaults {
         'Core.JavaScriptEnhancements.js',
         'Core.Config.js',
         'Core.Language.js',
+        'Core.Template.js',
         'Core.App.js',
         'Core.App.Responsive.js',
         'Core.AJAX.js',
@@ -993,6 +1000,7 @@ sub LoadDefaults {
         'thirdparty/stacktrace-0.6.4/stacktrace.js',
         'thirdparty/jquery-pubsub/pubsub.js',
         'thirdparty/jquery-jstree-3.1.1/jquery.jstree.js',
+        'thirdparty/nunjucks-2.4.2/nunjucks.js',
         'Core.Init.js',
         'Core.JavaScriptEnhancements.js',
         'Core.Debug.js',
@@ -1000,6 +1008,7 @@ sub LoadDefaults {
         'Core.Data.js',
         'Core.Config.js',
         'Core.Language.js',
+        'Core.Template.js',
         'Core.JSON.js',
         'Core.App.js',
         'Core.App.Responsive.js',

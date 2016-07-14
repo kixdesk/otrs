@@ -171,6 +171,7 @@
                 <Item Key="hi" Translatable="1">Hindi</Item>
                 <Item Key="hr" Translatable="1">Croatian</Item>
                 <Item Key="hu" Translatable="1">Hungarian</Item>
+                <Item Key="id" Translatable="1">Indonesian</Item>
                 <Item Key="it" Translatable="1">Italian</Item>
                 <Item Key="ja" Translatable="1">Japanese</Item>
                 <Item Key="lt" Translatable="1">Lithuanian</Item>
@@ -226,6 +227,7 @@
                 <Item Key="hi">हिन्दी</Item>
                 <Item Key="hr">Hrvatski</Item>
                 <Item Key="hu">Magyar</Item>
+                <Item Key="id">Bahasa Indonesia</Item>
                 <Item Key="it">Italiano</Item>
                 <Item Key="ja">日本語</Item>
                 <Item Key="lt">Lietuvių kalba</Item>
@@ -7273,7 +7275,7 @@
         <SubGroup>DynamicFields::ObjectType::Registration</SubGroup>
         <Setting>
             <Hash>
-                <Item Key="DisplayName" Translatable="1">Customer Company</Item>
+                <Item Key="DisplayName" Translatable="1">Customer</Item>
                 <Item Key="Module">Kernel::System::DynamicField::ObjectType::CustomerCompany</Item>
                 <Item Key="Prio">120</Item>
                 <Item Key="UseObjectName">1</Item>
@@ -8762,10 +8764,10 @@ via the Preferences button after logging in.
                 <Loader>
                     <CSS>Core.Agent.Dashboard.css</CSS>
                     <CSS>Core.AllocationList.css</CSS>
-                    <CSS>thirdparty/fullcalendar-2.6.1/fullcalendar.min.css</CSS>
+                    <CSS>thirdparty/fullcalendar-2.8.0/fullcalendar.min.css</CSS>
                     <CSS>thirdparty/nvd3-1.7.1/nv.d3.css</CSS>
-                    <JavaScript>thirdparty/momentjs-2.10.6/moment.min.js</JavaScript>
-                    <JavaScript>thirdparty/fullcalendar-2.6.1/fullcalendar.min.js</JavaScript>
+                    <JavaScript>thirdparty/momentjs-2.13.0/moment.min.js</JavaScript>
+                    <JavaScript>thirdparty/fullcalendar-2.8.0/fullcalendar.min.js</JavaScript>
                     <JavaScript>thirdparty/d3-3.5.6/d3.min.js</JavaScript>
                     <JavaScript>thirdparty/nvd3-1.7.1/nvd3.min.js</JavaScript>
                     <JavaScript>thirdparty/nvd3-1.7.1/models/OTRSLineChart.js</JavaScript>
@@ -10576,6 +10578,7 @@ via the Preferences button after logging in.
                 <Item>thirdparty/stacktrace-0.6.4/stacktrace.js</Item>
                 <Item>thirdparty/jquery-pubsub/pubsub.js</Item>
                 <Item>thirdparty/jquery-jstree-3.1.1/jquery.jstree.js</Item>
+                <Item>thirdparty/nunjucks-2.4.2/nunjucks.js</Item>
                 <Item>Core.Init.js</Item>
                 <Item>Core.JavaScriptEnhancements.js</Item>
                 <Item>Core.Debug.js</Item>
@@ -10583,6 +10586,7 @@ via the Preferences button after logging in.
                 <Item>Core.Data.js</Item>
                 <Item>Core.Config.js</Item>
                 <Item>Core.Language.js</Item>
+                <Item>Core.Template.js</Item>
                 <Item>Core.JSON.js</Item>
                 <Item>Core.App.js</Item>
                 <Item>Core.App.Responsive.js</Item>
@@ -10668,6 +10672,7 @@ via the Preferences button after logging in.
                 <Item>thirdparty/stacktrace-0.6.4/stacktrace.js</Item>
                 <Item>thirdparty/jquery-pubsub/pubsub.js</Item>
                 <Item>thirdparty/jquery-jstree-3.1.1/jquery.jstree.js</Item>
+                <Item>thirdparty/nunjucks-2.4.2/nunjucks.js</Item>
                 <Item>Core.Init.js</Item>
                 <Item>Core.Debug.js</Item>
                 <Item>Core.Exception.js</Item>
@@ -10676,6 +10681,7 @@ via the Preferences button after logging in.
                 <Item>Core.JavaScriptEnhancements.js</Item>
                 <Item>Core.Config.js</Item>
                 <Item>Core.Language.js</Item>
+                <Item>Core.Template.js</Item>
                 <Item>Core.App.js</Item>
                 <Item>Core.App.Responsive.js</Item>
                 <Item>Core.AJAX.js</Item>

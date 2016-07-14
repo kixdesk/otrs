@@ -1,4 +1,5 @@
 #6.0.0.beta1 2016-??-??
+ - 2016-07-13 Added a javascript templating mechanism. Use Core.Template.Render() to fill given templates from either files or strings with data.
  - 2016-06-24 Improved TicketSearch() to return error on a search for inexistent dynamic fields instead of ignoring them, thanks to Moritz Lenz.
  - 2016-06-06 Added checks for length of words in search terms when using search index/StaticDB backend.
  - 2016-06-06 Fixed bug#[12020](http://bugs.otrs.org/show_bug.cgi?id=12020) - Option CaseSensitive has no impact on external customer database.
@@ -44,6 +45,21 @@
  - 2015-11-27 Improved command Maint::Ticket::InvalidUserCleanup. It can now now both unlock tickets of invalid users and also (optionally) change their state to make sure they will not be overlooked. Thanks to Moritz Lenz @ noris networks.
 
 #5.0.12 2016-??-??
+ - 2016-07-13 Fixed bug#[12118](http://bugs.otrs.org/show_bug.cgi?id=12118) - Text Area filter doesn't work for Statistic.
+ - 2016-07-13 Fixed bug#[12189](http://bugs.otrs.org/show_bug.cgi?id=12189) - ACL beginning with @ results in 500 internal server error.
+ - 2016-07-12 Fixed bug#[12185](http://bugs.otrs.org/show_bug.cgi?id=12185) - Sometimes page leave confirmation is shown when completing a popup action.
+ - 2016-07-12 Fixed bug#[12083](http://bugs.otrs.org/show_bug.cgi?id=12083) - When no result is found for a stats the result is 0.
+ - 2016-07-12 Fixed bug#[12182](http://bugs.otrs.org/show_bug.cgi?id=12182) - CIC - Customer Login still shows merged tickets as closes tickets.
+ - 2016-07-12 Fixed bug#[12181](http://bugs.otrs.org/show_bug.cgi?id=12181) - Object StateAction -> Names are not readable.
+ - 2016-07-11 Corrected date format for Thai and added new Indonesian language translation, thanks to all translators.
+ - 2016-07-11 Fixed bug#[11934](http://bugs.otrs.org/show_bug.cgi?id=11934) - GenericAgent - not possible to uncheck a checkbox.
+ - 2016-07-08 Fixed bug#[12179](http://bugs.otrs.org/show_bug.cgi?id=12179) - Wrong OTRS tags conversion in transition actions called by Generic Agent over multiple tickets.
+ - 2016-07-08 Fixed bug#[12105](http://bugs.otrs.org/show_bug.cgi?id=12105) - "Create summation row" and "Create summation column" are transposed.
+ - 2016-07-08 Fixed bug#[12177](http://bugs.otrs.org/show_bug.cgi?id=12177) - "Close ticket" and "Close window".
+ - 2016-07-08 Fixed bug#[12150](http://bugs.otrs.org/show_bug.cgi?id=12150) - Ticket::HookDivider missing in TicketZoom and History View.
+ - 2016-07-08 Fixed bug#[12134](http://bugs.otrs.org/show_bug.cgi?id=12134) - Tag <OTRS_CUSTOMER_REALNAME> wrongly documented.
+ - 2016-07-08 Fixed bug#[7108](http://bugs.otrs.org/show_bug.cgi?id=7108) - Email not sent if FQDN has port number in it.
+ - 2016-07-07 Fixed bug#[12178](http://bugs.otrs.org/show_bug.cgi?id=12178) - CustomerUser in Config.pm breaks the system.
  - 2016-07-04 Fixed bug#[12147](http://bugs.otrs.org/show_bug.cgi?id=12147) - Transition Action - to set Service and SLA.
  - 2016-07-01 Fixed bug#[12141](http://bugs.otrs.org/show_bug.cgi?id=12141) - Wrong check for needed objects.
  - 2016-07-01 Fixed bug#[8640](http://bugs.otrs.org/show_bug.cgi?id=8640) - Article bounce does not conform to rfc 2822.

@@ -946,10 +946,8 @@ sub _GetParam {
             my $DynamicFieldConfig = ( grep { $_->{Name} eq $DynamicFieldName } @{$DynamicField} )[0];
 
             if ( !IsHashRefWithData($DynamicFieldConfig) ) {
-                my $Message = $LayoutObject->{LanguageObject}->Translate(
-                    'DynamicFieldConfig missing for field: %s, or is not a Ticket Dynamic Field!',
-                    $DynamicFieldName,
-                );
+                my $Message =
+                    "DynamicFieldConfig missing for field: $DynamicFieldName, or is not a Ticket Dynamic Field!";
 
                 # log error but does not stop the execution as it could be an old Article
                 # DynamicField, see bug#11666
@@ -5269,11 +5267,11 @@ sub _DisplayProcessList {
     }
 
     if ( $Param{PreSelectProcess} && $Param{ProcessID} ) {
-        $LayoutObject->Block(
-            Name => 'PreSelectProcess',
-            Data => {
-                ProcessID => $Param{ProcessID},
-            },
+
+        # send data to JS
+        $LayoutObject->AddJSData(
+            Key   => 'ProcessID',
+            Value => $Param{ProcessID},
         );
     }
 

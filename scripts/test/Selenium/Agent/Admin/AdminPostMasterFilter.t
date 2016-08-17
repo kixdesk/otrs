@@ -97,7 +97,7 @@ $Selenium->RunTest(
 
         $Selenium->find_element( "#EditName", 'css' )->send_keys($PostMasterRandomID);
         $Selenium->execute_script("\$('#MatchHeader1').val('Body').trigger('redraw.InputField').trigger('change');");
-        $Selenium->find_element( "#MatchNot1",   'css' )->click();
+        $Selenium->find_element( "#MatchNot1",   'css' )->VerifiedClick();
         $Selenium->find_element( "#MatchValue1", 'css' )->send_keys($PostMasterBody);
         $Selenium->execute_script(
             "\$('#SetHeader1').val('X-OTRS-Priority').trigger('redraw.InputField').trigger('change');"
@@ -149,7 +149,7 @@ $Selenium->RunTest(
         my $EditPostMasterPriority = "4 high";
 
         $Selenium->execute_script("\$('#StopAfterMatch').val('1').trigger('redraw.InputField').trigger('change');");
-        $Selenium->find_element( "#MatchNot1", 'css' )->click();
+        $Selenium->find_element( "#MatchNot1", 'css' )->VerifiedClick();
         $Selenium->find_element( "#SetValue1", 'css' )->clear();
         $Selenium->find_element( "#SetValue1", 'css' )->send_keys($EditPostMasterPriority);
         $Selenium->find_element( "#EditName",  'css' )->VerifiedSubmit();
@@ -170,6 +170,28 @@ $Selenium->RunTest(
         $Self->Is(
             $Selenium->find_element( '#SetValue1', 'css' )->get_value(),
             $EditPostMasterPriority,
+            "#SetValue1 updated value",
+        );
+
+        # Make sure that 0 can be stored in match and set as well (see http://bugs.otrs.org/show_bug.cgi?id=12218)
+        $Selenium->find_element( "#MatchValue1", 'css' )->clear();
+        $Selenium->find_element( "#MatchValue1", 'css' )->send_keys('0');
+        $Selenium->find_element( "#SetValue1",   'css' )->clear();
+        $Selenium->find_element( "#SetValue1",   'css' )->send_keys('0');
+        $Selenium->find_element( "#EditName",    'css' )->VerifiedSubmit();
+
+        # check edited test PostMasterFilter values
+        $Selenium->find_element( $PostMasterRandomID, 'link_text' )->VerifiedClick();
+
+        $Self->Is(
+            $Selenium->find_element( '#MatchValue1', 'css' )->get_value(),
+            0,
+            "#SetValue1 updated value",
+        );
+
+        $Self->Is(
+            $Selenium->find_element( '#SetValue1', 'css' )->get_value(),
+            0,
             "#SetValue1 updated value",
         );
 
@@ -194,7 +216,7 @@ JAVASCRIPT
         $Selenium->execute_script($ConfirmJS);
         $Selenium->find_element(
             "//a[contains(\@href, \'Subaction=Delete;Name=$PostMasterRandomID' )]"
-        )->click();
+        )->VerifiedClick();
 
         my $LanguageObject = Kernel::Language->new(
             UserLanguage => $Language,

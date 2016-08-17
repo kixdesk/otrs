@@ -19,22 +19,17 @@ $Selenium->RunTest(
     sub {
 
         # get needed objects
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-            },
-        );
         my $Helper       = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
         my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
         # do not check email addresses
-        $ConfigObject->Set(
+        $Helper->ConfigSettingChange(
             Key   => 'CheckEmailAddresses',
             Value => 0,
         );
 
         # check to see tickets in plain view
-        $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'Ticket::Frontend::PlainView',
             Value => 1
@@ -120,7 +115,7 @@ $Selenium->RunTest(
         $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AgentTicketZoom;TicketID=$TicketID");
 
         # click to show ticket in plain view
-        $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketPlain' )]")->click();
+        $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketPlain' )]")->VerifiedClick();
 
         # switch to plain window
         $Selenium->WaitFor( WindowCount => 2 );

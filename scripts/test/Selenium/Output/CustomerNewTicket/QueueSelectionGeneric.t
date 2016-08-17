@@ -19,18 +19,10 @@ $Selenium->RunTest(
     sub {
 
         # get helper object
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-                }
-        );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
-        # get sysconfig object
-        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
-
         # make sure Ticket::Frontend::CustomerTicketMessage###Queue sysconfig is set to 'Yes'
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'Ticket::Frontend::CustomerTicketMessage###Queue',
             Value => 1
@@ -94,11 +86,12 @@ $Selenium->RunTest(
         );
 
         # switch to system address as new destination for customer new ticket
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'CustomerPanelSelectionType',
             Value => 'SystemAddress'
         );
+
         $Selenium->VerifiedRefresh();
 
         # check for system address queue destination

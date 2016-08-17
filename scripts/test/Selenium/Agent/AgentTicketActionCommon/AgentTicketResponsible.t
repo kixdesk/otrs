@@ -19,39 +19,31 @@ $Selenium->RunTest(
     sub {
 
         # get helper object
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-            },
-        );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
-        # get sysconfig object
-        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
-
         # enable change owner to everyone feature
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'Ticket::ChangeOwnerToEveryone',
-            Value => 1
+            Value => 1,
         );
 
         # enable ticket responsible feature
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'Ticket::Responsible',
-            Value => 1
+            Value => 1,
         );
 
         # do not check RichText
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'Frontend::RichText',
-            Value => 0
+            Value => 0,
         );
 
         my $Config = $Kernel::OM->Get('Kernel::Config')->Get('Ticket::Frontend::AgentTicketResponsible');
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'Ticket::Frontend::AgentTicketResponsible',
             Value => {
@@ -121,7 +113,8 @@ $Selenium->RunTest(
         );
 
         # click on 'Responsible' and switch window
-        $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketResponsible;TicketID=$TicketID' )]")->click();
+        $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketResponsible;TicketID=$TicketID' )]")
+            ->VerifiedClick();
 
         $Selenium->WaitFor( WindowCount => 2 );
         my $Handles = $Selenium->get_window_handles();
@@ -169,14 +162,27 @@ $Selenium->RunTest(
         $Selenium->WaitFor( WindowCount => 1 );
         $Selenium->switch_to_window( $Handles->[0] );
 
-        # navigate to AgentTicketHistory of created test ticket
-        $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AgentTicketHistory;TicketID=$TicketID");
+        # wait until page has loaded, if necessary
+        $Selenium->WaitFor(
+            JavaScript =>
+                'return typeof($) === "function" && $(".WidgetSimple").length && $("div.TicketZoom").length;'
+        );
 
-        # confirm responsible action
-        my $ResponsibleMsg = "New responsible is \"$TestUser[1]\" (ID=$UserID[1]).";
-        $Self->True(
-            index( $Selenium->get_page_source(), $ResponsibleMsg ) > -1,
-            "Ticket responsible action completed",
+        # make sure the cache is correct
+        $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
+            Type => 'Ticket',
+        );
+
+        # get ticket attributes
+        my %Ticket = $TicketObject->TicketGet(
+            TicketID => $TicketID,
+            UserID   => $UserID[0],
+        );
+
+        $Self->Is(
+            $Ticket{ResponsibleID},
+            $UserID[1],
+            'New responsible correctly set',
         );
 
         # delete created test tickets
@@ -186,14 +192,13 @@ $Selenium->RunTest(
         );
         $Self->True(
             $Success,
-            "Ticket is deleted - ID $TicketID"
+            "Ticket is deleted - ID $TicketID",
         );
 
         # make sure the cache is correct
         $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
             Type => 'Ticket',
         );
-
     }
 );
 

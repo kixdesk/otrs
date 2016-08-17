@@ -19,11 +19,6 @@ $Selenium->RunTest(
     sub {
 
         # get helper object
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-            },
-        );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
         # get config object
@@ -39,12 +34,12 @@ $Selenium->RunTest(
             Priority    => '1990010',
         );
 
-        $ConfigObject->Set(
+        $Helper->ConfigSettingChange(
             Key   => 'Frontend::ToolBarModule###11-Ticket::TicketSearchProfile',
             Value => \%TicketSearchProfile,
         );
 
-        $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'Frontend::ToolBarModule###11-Ticket::TicketSearchProfile',
             Value => \%TicketSearchProfile
@@ -93,20 +88,20 @@ $Selenium->RunTest(
         );
 
         # click on search
-        $Selenium->find_element( "#GlobalSearchNav", 'css' )->click();
+        $Selenium->find_element( "#GlobalSearchNav", 'css' )->VerifiedClick();
 
         # wait until search window is loading
         $Selenium->WaitFor( JavaScript => "return typeof(\$) === 'function' && \$('#SearchProfileNew').length" );
 
         # create new template search
         my $SearchProfileName = "SeleniumTest";
-        $Selenium->find_element( "#SearchProfileNew",       'css' )->click();
+        $Selenium->find_element( "#SearchProfileNew",       'css' )->VerifiedClick();
         $Selenium->find_element( "#SearchProfileAddName",   'css' )->send_keys($SearchProfileName);
-        $Selenium->find_element( "#SearchProfileAddAction", 'css' )->click();
+        $Selenium->find_element( "#SearchProfileAddAction", 'css' )->VerifiedClick();
         $Selenium->execute_script(
             "\$('#Attribute').val('TicketNumber').trigger('redraw.InputField').trigger('change');"
         );
-        $Selenium->find_element( ".AddButton", 'css' )->click();
+        $Selenium->find_element( ".AddButton", 'css' )->VerifiedClick();
         $Selenium->find_element("//input[\@name='TicketNumber']")->send_keys("$TicketNumber");
         $Selenium->find_element( "#SearchFormSubmit", 'css' )->VerifiedClick();
 

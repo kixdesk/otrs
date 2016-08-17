@@ -18,17 +18,11 @@ my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 $Selenium->RunTest(
     sub {
 
-        # get needed objects
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-            },
-        );
-        my $Helper          = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
-        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+        # get helper object
+        my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
         # make sure that UserOutOfOffice is enabled
-        my %UserOutOfOfficeSysConfig = $SysConfigObject->ConfigItemGet(
+        my %UserOutOfOfficeSysConfig = $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemGet(
             Name    => 'DashboardBackend###0390-UserOutOfOffice',
             Default => 1,
         );
@@ -37,7 +31,7 @@ $Selenium->RunTest(
             grep { defined $_->{Key} } @{ $UserOutOfOfficeSysConfig{Setting}->[1]->{Hash}->[1]->{Item} };
 
         # enable UserOutOfOffice and set it to load as default plugin
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'DashboardBackend###0390-UserOutOfOffice',
             Value => \%UserOutOfOfficeSysConfig,

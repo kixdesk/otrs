@@ -19,17 +19,11 @@ $Selenium->RunTest(
     sub {
 
         # get needed objects
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-            },
-        );
-        my $Helper          = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
-        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
-        my $TicketObject    = $Kernel::OM->Get('Kernel::System::Ticket');
+        my $Helper       = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+        my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
         # enable customer group support
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'CustomerGroupSupport',
             Value => 1,
@@ -74,11 +68,6 @@ $Selenium->RunTest(
             Type     => 'Agent',
             User     => $TestUserLogin,
             Password => $TestUserLogin,
-        );
-
-        # reset CustomerFrontend::Module###CustomerTicketOverview sysconfig
-        $SysConfigObject->ConfigItemReset(
-            Name => 'CustomerFrontend::Module###CustomerTicketOverview',
         );
 
         # create test group

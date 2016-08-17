@@ -20,13 +20,7 @@ my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 $Selenium->RunTest(
     sub {
 
-        # get needed objects
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-            },
-        );
-
+        # get helper object
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
         $Selenium->set_window_size( 600, 400 );
@@ -89,8 +83,8 @@ $Selenium->RunTest(
         );
 
         # expand navigation bar
-        $Selenium->find_element( "#ResponsiveNavigationHandle", "css" )->click();
-        sleep(1);
+        $Selenium->find_element( "#ResponsiveNavigationHandle", "css" )->VerifiedClick();
+        sleep 1;
         $ItemVisible = $Selenium->execute_script(
             q{
                 return $('#NavigationContainer:visible').length;
@@ -103,8 +97,8 @@ $Selenium->RunTest(
         );
 
         # collapse navigation bar again
-        $Selenium->find_element( "#ResponsiveNavigationHandle", "css" )->click();
-        sleep(1);
+        $Selenium->find_element( "#ResponsiveNavigationHandle", "css" )->VerifiedClick();
+        sleep 1;
         $ItemVisible = $Selenium->execute_script(
             q{
                 return $('#NavigationContainer:visible').length;
@@ -117,8 +111,8 @@ $Selenium->RunTest(
         );
 
         # expand sidebar
-        $Selenium->find_element( "#ResponsiveSidebarHandle", "css" )->click();
-        sleep(1);
+        $Selenium->find_element( "#ResponsiveSidebarHandle", "css" )->VerifiedClick();
+        sleep 1;
         $ItemVisible = $Selenium->execute_script(
             q{
                 return $('.ResponsiveSidebarContainer:visible').length;
@@ -131,8 +125,8 @@ $Selenium->RunTest(
         );
 
         # collapse sidebar again
-        $Selenium->find_element( "#ResponsiveSidebarHandle", "css" )->click();
-        sleep(1);
+        $Selenium->find_element( "#ResponsiveSidebarHandle", "css" )->VerifiedClick();
+        sleep 1;
         $ItemVisible = $Selenium->execute_script(
             q{
                 return $('.ResponsiveSidebarContainer:visible').length;
@@ -145,8 +139,8 @@ $Selenium->RunTest(
         );
 
         # expand toolbar
-        $Selenium->find_element( "#Logo", "css" )->click();
-        sleep(1);
+        $Selenium->find_element( "#Logo", "css" )->VerifiedClick();
+        sleep 1;
         $ItemVisible = $Selenium->execute_script(
             q{
                 return $('#ToolBar').css('height');
@@ -182,8 +176,8 @@ $Selenium->RunTest(
         );
 
         # collapse toolbar again
-        $Selenium->find_element( "#Logo", "css" )->click();
-        sleep(1);
+        $Selenium->find_element( "#Logo", "css" )->VerifiedClick();
+        sleep 1;
         $ItemVisible = $Selenium->execute_script(
             q{
                 return $('#ToolBar').css('height');
@@ -232,7 +226,7 @@ $Selenium->RunTest(
         );
 
         # toggle the switch
-        $Selenium->find_element( "#ViewModeSwitch", "css" )->click();
+        $Selenium->find_element( "#ViewModeSwitch", "css" )->VerifiedClick();
 
         # wait until jquery is ready
         $Selenium->WaitFor( JavaScript => "return typeof(\$) === 'function'" );
@@ -272,7 +266,7 @@ $Selenium->RunTest(
         );
 
         # toggle the switch again
-        $Selenium->find_element( "#ViewModeSwitch", "css" )->click();
+        $Selenium->find_element( "#ViewModeSwitch", "css" )->VerifiedClick();
 
         # wait until jquery is ready
         $Selenium->WaitFor( JavaScript => "return typeof(\$) === 'function'" );

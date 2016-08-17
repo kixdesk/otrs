@@ -19,11 +19,6 @@ $Selenium->RunTest(
     sub {
 
         # get helper object
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-            },
-        );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
         # get config object
@@ -40,12 +35,12 @@ $Selenium->RunTest(
             Priority => '1020020',
         );
 
-        $ConfigObject->Set(
+        $Helper->ConfigSettingChange(
             Key   => 'Frontend::ToolBarModule###5-Ticket::AgentTicketEmail',
             Value => \%AgentTicketEmail,
         );
 
-        $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'Frontend::ToolBarModule###5-Ticket::AgentTicketEmail',
             Value => \%AgentTicketEmail

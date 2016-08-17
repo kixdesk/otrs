@@ -19,19 +19,11 @@ $Selenium->RunTest(
     sub {
 
         # get helper object
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-                }
-        );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
-
-        # get sysconfig object
-        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
 
         # enable ticket responsible and watch feature
         for my $SysConfigResWatch (qw( Responsible Watcher )) {
-            $SysConfigObject->ConfigItemUpdate(
+            $Helper->ConfigSettingChange(
                 Valid => 1,
                 Key   => "Ticket::$SysConfigResWatch",
                 Value => 1
@@ -92,11 +84,11 @@ $Selenium->RunTest(
 
         # enable delete and spam menu in sysconfig
         for my $SysConfigItem (@TicketMenu) {
-            $Kernel::OM->Get('Kernel::Config')->Set(
+            $Helper->ConfigSettingChange(
                 Key   => $SysConfigItem->{Key},
                 Value => $SysConfigItem->{SysConfigItem},
             );
-            $SysConfigObject->ConfigItemUpdate(
+            $Helper->ConfigSettingChange(
                 Valid => 1,
                 Key   => $SysConfigItem->{Key},
                 Value => $SysConfigItem->{SysConfigItem},

@@ -19,19 +19,14 @@ $Selenium->RunTest(
     sub {
 
         # get needed objects
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-            },
-        );
         my $Helper       = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
         my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
         # do not check RichText
-        $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'Frontend::RichText',
-            Value => 0
+            Value => 0,
         );
 
         # create test user and login
@@ -83,7 +78,8 @@ $Selenium->RunTest(
         );
 
         # click on 'Note' and switch window
-        $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketNote;TicketID=$TicketID' )]")->click();
+        $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketNote;TicketID=$TicketID' )]")
+            ->VerifiedClick();
 
         $Selenium->WaitFor( WindowCount => 2 );
         my $Handles = $Selenium->get_window_handles();
@@ -142,7 +138,8 @@ $Selenium->RunTest(
         );
 
         # click on 'History' and switch window
-        $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketHistory;TicketID=$TicketID' )]")->click();
+        $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketHistory;TicketID=$TicketID' )]")
+            ->VerifiedClick();
 
         $Selenium->WaitFor( WindowCount => 2 );
         $Handles = $Selenium->get_window_handles();
@@ -169,7 +166,7 @@ $Selenium->RunTest(
         $Selenium->switch_to_window( $Handles->[0] );
 
         # click 'Reply to note' in order to check for pre-loaded reply-to note subject, see bug #10931
-        $Selenium->find_element("//a[contains(\@href, \'ReplyToArticle' )]")->click();
+        $Selenium->find_element("//a[contains(\@href, \'ReplyToArticle' )]")->VerifiedClick();
 
         # switch window
         $Selenium->WaitFor( WindowCount => 2 );
@@ -191,12 +188,8 @@ $Selenium->RunTest(
             "Reply-To note #Subject pre-loaded value",
         );
 
-        # close note window
-        $Selenium->find_element( ".CancelClosePopup", 'css' )->click();
-
-        # switch window back to agent ticket zoom view of created test ticket
-        $Selenium->WaitFor( WindowCount => 1 );
-        $Selenium->switch_to_window( $Handles->[0] );
+        # close note pop-up window
+        $Selenium->close();
 
         # delete created test tickets
         my $Success = $TicketObject->TicketDelete(
@@ -205,14 +198,13 @@ $Selenium->RunTest(
         );
         $Self->True(
             $Success,
-            "Ticket is deleted - ID $TicketID"
+            "Ticket is deleted - ID $TicketID",
         );
 
         # make sure the cache is correct
         $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
             Type => 'Ticket',
         );
-
     }
 );
 

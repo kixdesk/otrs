@@ -26,11 +26,6 @@ $Selenium->RunTest(
     sub {
 
         # get helper object
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-            },
-        );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
         # create and log in test user
@@ -79,7 +74,7 @@ $Selenium->RunTest(
         my $ScriptAlias = $ConfigObject->Get('ScriptAlias');
 
         # import test selenium process
-        $Selenium->get("${ScriptAlias}index.pl?Action=AdminProcessManagement");
+        $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AdminProcessManagement");
         my $Location = $ConfigObject->Get('Home')
             . "/scripts/test/sample/ProcessManagement/TestProcess.yml";
         $Selenium->find_element( "#FileUpload",                      'css' )->send_keys($Location);
@@ -88,9 +83,6 @@ $Selenium->RunTest(
 
         # synchronize process
         $Selenium->find_element("//a[contains(\@href, \'Subaction=ProcessSync' )]")->VerifiedClick();
-
-        # let mod_perl / Apache2::Reload pick up the changed configuration
-        sleep 3;
 
         # get process list
         my $List = $ProcessObject->ProcessList(
@@ -205,9 +197,6 @@ $Selenium->RunTest(
         $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AdminProcessManagement");
         $Selenium->find_element("//a[contains(\@href, \'Subaction=ProcessSync' )]")->VerifiedClick();
 
-        # let mod_perl / Apache2::Reload pick up the changed configuration
-        sleep 3;
-
         # check if NavBarAgentTicketProcess button is not available when no process is available
         $Selenium->VerifiedRefresh();
         $Self->True(
@@ -217,18 +206,14 @@ $Selenium->RunTest(
 
         # check if NavBarAgentTicketProcess button is available
         # when NavBarAgentTicketProcess module is disabled and no process is available
-        my $SysConfigObject          = $Kernel::OM->Get('Kernel::System::SysConfig');
-        my %NavBarAgentTicketProcess = $SysConfigObject->ConfigItemGet(
+        my %NavBarAgentTicketProcess = $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemGet(
             Name => 'Frontend::NavBarModule###1-TicketProcesses',
         );
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 0,
             Key   => 'Frontend::NavBarModule###1-TicketProcesses',
             Value => \%NavBarAgentTicketProcess,
         );
-
-        # sleep a little bit to allow mod_perl to pick up the changed config files
-        sleep 3;
 
         $Selenium->VerifiedRefresh();
         $Self->True(

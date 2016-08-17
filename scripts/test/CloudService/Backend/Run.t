@@ -175,6 +175,14 @@ $ConfigObject->Set(
     Value => 1,
 );
 
+my %Intervall = (
+    1 => 3,
+    2 => 15,
+    3 => 60,
+    4 => 60 * 3,
+    5 => 60 * 6,
+);
+
 TEST:
 for my $Test (@Tests) {
 
@@ -193,23 +201,35 @@ for my $Test (@Tests) {
         Objects => [ 'Kernel::System::CloudService::Backend::Run', ],
     );
 
-    # perform the request
-    my $RequestResult = $Kernel::OM->Get('Kernel::System::CloudService::Backend::Run')->Request( %{ $Test->{Config} } );
+    # get cloud service backend object
+    my $CloudServiceBackend = $Kernel::OM->Get('Kernel::System::CloudService::Backend::Run');
 
-    if ( !$Test->{Success} ) {
-        $Self->Is(
-            $RequestResult,
-            undef,
-            "$Test->{Name} Run Request()",
-        );
+    my $RequestResult;
+    TRY:
+    for my $Try ( 1 .. 5 ) {
 
-        next TEST;
+        # perform the request
+        $RequestResult = $CloudServiceBackend->Request( %{ $Test->{Config} } );
+
+        if ( !$Test->{Success} ) {
+            $Self->Is(
+                $RequestResult,
+                undef,
+                "$Test->{Name} - Expected unsuccessfull request",
+            );
+
+            next TEST;
+        }
+
+        last TRY if $RequestResult;
+
+        sleep $Intervall{$Try};
     }
 
     $Self->IsDeeply(
         $RequestResult,
         $Test->{ExpectedResults},
-        "$Test->{Name} Run Request()",
+        "$Test->{Name} - Expected request",
     );
 }
 

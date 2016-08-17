@@ -308,8 +308,9 @@ sub _Edit {
     }
 
     if ( $LayoutObject->{BrowserRichText} ) {
-        $LayoutObject->Block(
-            Name => 'RichText',
+
+        # set up rich text editor
+        $LayoutObject->SetRichTextParameters(
             Data => \%Param,
         );
     }

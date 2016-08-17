@@ -18,18 +18,12 @@ my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 $Selenium->RunTest(
     sub {
 
-        # get needed objects
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-            },
-        );
-        my $Helper          = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
-        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+        # get helper object
+        my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
         # disable 'Ticket Information', 'Customer Information' and 'Linked Objects' widgets in AgentTicketZoom screen
         for my $WidgetDisable (qw(0100-TicketInformation 0200-CustomerInformation 0300-LinkTable)) {
-            $SysConfigObject->ConfigItemUpdate(
+            $Helper->ConfigSettingChange(
                 Valid => 0,
                 Key   => "Ticket::Frontend::AgentTicketZoom###Widgets###$WidgetDisable",
                 Value => '',
@@ -37,7 +31,7 @@ $Selenium->RunTest(
         }
 
         # set 'Linked Objects' widget to simple view
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'LinkObject::ViewMode',
             Value => 'Simple',
@@ -132,9 +126,14 @@ $Selenium->RunTest(
         );
 
         # reset 'Linked Objects' widget sysconfig, enable it and refresh screen
-        $SysConfigObject->ConfigItemReset(
-            Name => 'Ticket::Frontend::AgentTicketZoom###Widgets###0300-LinkTable',
+        $Helper->ConfigSettingChange(
+            Valid => 1,
+            Key   => 'Ticket::Frontend::AgentTicketZoom###Widgets###0300-LinkTable',
+            Value => {
+                Module => 'Kernel::Output::HTML::TicketZoom::LinkTable',
+            },
         );
+
         $Selenium->VerifiedRefresh();
 
         # verify there is 'Linked Objects' widget, it's enabled
@@ -149,7 +148,7 @@ $Selenium->RunTest(
             $Selenium->find_elements(
                 "//a[contains(\@class, 'LinkObjectLink')][contains(\@title, '$TicketTitles[0]')][contains(\@href, 'TicketID=$TicketIDs[0]')]"
             ),
-            "Link to parent ticket found"
+            "Link to parent ticket found",
         );
 
         # verify there is link to child ticket
@@ -157,46 +156,44 @@ $Selenium->RunTest(
             $Selenium->find_elements(
                 "//a[contains(\@class, 'LinkObjectLink')][contains(\@title, '$TicketTitles[2]')][contains(\@href, 'TicketID=$TicketIDs[2]')]"
             ),
-            "Link to child ticket found"
+            "Link to child ticket found",
         );
 
         # verify there is no collapsed elements on the screen
         $Self->True(
             $Selenium->find_element("//div[contains(\@class, 'WidgetSimple DontPrint Expanded')]"),
-            "Linked Objects Widget is expanded"
+            "Linked Objects Widget is expanded",
         );
 
         # toggle to collapse 'Linked Objects' widget
-        $Selenium->find_element("//a[contains(\@title, 'Show or hide the content' )]")->click();
+        $Selenium->find_element("//a[contains(\@title, 'Show or hide the content' )]")->VerifiedClick();
 
         # verify there is collapsed element on the screen
         $Self->True(
             $Selenium->find_element("//div[contains(\@class, 'WidgetSimple DontPrint Collapsed')]"),
-            "Linked Objects Widget is collapsed"
+            "Linked Objects Widget is collapsed",
         );
 
         # verify 'Linked Objects' widget is in the side bar with simple view
-        my $ParentElement = $Selenium->find_element( ".SidebarColumn", 'css' );
         $Self->Is(
-            $Selenium->find_child_element( $ParentElement, '.Header>h2', 'css' )->get_text(),
+            $Selenium->find_element( '.SidebarColumn .Header>h2', 'css' )->get_text(),
             'Linked Objects',
             'Linked Objects widget is positioned in the side bar with simple view',
         );
 
         # change view to complex
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'LinkObject::ViewMode',
             Value => 'Complex',
         );
 
-        # refresh screen
-        $Selenium->VerifiedRefresh();
+        # navigate to AgentTicketZoom for test created second ticket again
+        $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AgentTicketZoom;TicketID=$TicketIDs[1]");
 
         # verify 'Linked Object' widget is in the main column with complex view
-        $ParentElement = $Selenium->find_element( ".ContentColumn", 'css' );
         $Self->Is(
-            $Selenium->find_child_element( $ParentElement, '.Header>h2', 'css' )->get_text(),
+            $Selenium->find_element( '.ContentColumn .Header>h2', 'css' )->get_text(),
             'Linked: Ticket',
             'Linked Objects widget is positioned in the main column with complex view',
         );
@@ -210,7 +207,7 @@ $Selenium->RunTest(
             );
             $Self->True(
                 $Success,
-                "TicketID $TicketDelete is deleted"
+                "TicketID $TicketDelete is deleted",
             );
         }
 

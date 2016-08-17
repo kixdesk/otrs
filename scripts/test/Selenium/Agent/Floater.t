@@ -20,26 +20,18 @@ my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 $Selenium->RunTest(
     sub {
 
-        # get needed objects
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-            },
-        );
-
-        my $Helper          = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
-        my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
-        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+        # get helper object
+        my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
         # enable meta floaters for AgentTicketZoom
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'Ticket::Frontend::ZoomCollectMeta',
             Value => 1
         );
 
         # set a filter to valid which has floater preview enabled
-        $SysConfigObject->ConfigItemValidityUpdate(
+        $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemValidityUpdate(
             Name  => 'Ticket::Frontend::ZoomCollectMetaFilters###CVE-Mitre',
             Valid => 1,
         );

@@ -877,6 +877,12 @@ sub Login {
         }
     }
 
+    # send data to JS
+    $Self->AddJSData(
+        Key   => 'LoginFailed',
+        Value => $Param{LoginFailed},
+    );
+
     # create & return output
     $Output .= $Self->Output(
         TemplateFile => 'Login',
@@ -1425,6 +1431,13 @@ sub Header {
             }
         }
 
+        if ( $ConfigObject->Get('ChatEngine::Active') ) {
+            $Self->AddJSData(
+                Key   => 'ChatActive',
+                Value => $ConfigObject->Get('ChatEngine::Active')
+            );
+        }
+
         # show logged in notice
         if ( $Param{ShowPrefLink} ) {
             $Self->Block(
@@ -1566,7 +1579,7 @@ sub Footer {
         RichTextSet                    => $ConfigObject->Get('Frontend::RichText'),
         CheckEmailAddresses            => $ConfigObject->Get('CheckEmailAddresses'),
         MenuDragDropEnabled            => $ConfigObject->Get('Frontend::MenuDragDropEnabled'),
-        OpenMainMenuOnHover            => $ConfigObject->Get('Frontend::OpenMainMenuOnHover'),
+        OpenMainMenuOnHover            => $ConfigObject->Get('OpenMainMenuOnHover'),
         CustomerInfoSet                => $ConfigObject->Get('Ticket::Frontend::CustomerInfoCompose'),
         IncludeUnknownTicketCustomers  => $ConfigObject->Get('Ticket::IncludeUnknownTicketCustomers'),
         InputFieldsActivated           => $ConfigObject->Get('ModernizeFormFields'),
@@ -2015,8 +2028,8 @@ sub CustomerAgeInHours {
     my $HourDsc   = Translatable('h');
     my $MinuteDsc = Translatable('m');
     if ( $Kernel::OM->Get('Kernel::Config')->Get('TimeShowCompleteDescription') ) {
-        $HourDsc   = Translatable('hour');
-        $MinuteDsc = Translatable('minute');
+        $HourDsc   = Translatable('hour(s)');
+        $MinuteDsc = Translatable('minute(s)');
     }
     if ( $Age =~ /^-(.*)/ ) {
         $Age     = $1;
@@ -2050,9 +2063,9 @@ sub CustomerAge {
     my $HourDsc   = Translatable('h');
     my $MinuteDsc = Translatable('m');
     if ( $ConfigObject->Get('TimeShowCompleteDescription') ) {
-        $DayDsc    = Translatable('day');
-        $HourDsc   = Translatable('hour');
-        $MinuteDsc = Translatable('minute');
+        $DayDsc    = Translatable('day(s)');
+        $HourDsc   = Translatable('hour(s)');
+        $MinuteDsc = Translatable('minute(s)');
     }
     if ( $Age =~ /^-(.*)/ ) {
         $Age     = $1;
@@ -2713,8 +2726,8 @@ sub PageNavBar {
     }
 
     $Param{SearchNavBar} = $Self->Output(
-        TemplateFile   => 'Pagination',
-        AJAX           => $Param{KeepScriptTags},
+        TemplateFile => 'Pagination',
+        AJAX         => $Param{KeepScriptTags},
     );
 
     # only show total amount of pages if there is more than one
@@ -3605,6 +3618,12 @@ sub CustomerLogin {
             );
         }
     }
+
+    # send data to JS
+    $Self->AddJSData(
+        Key   => 'LoginFailed',
+        Value => $Param{LoginFailed},
+    );
 
     # create & return output
     $Output .= $Self->Output(
@@ -5475,6 +5494,280 @@ sub TransfromDateSelection {
     my $Self = shift;
 
     return $Self->TransformDateSelection(@_);
+}
+
+=item SetRichTextParameters()
+
+set properties for rich text editor and send them to JS via AddJSData()
+
+$LayoutObject->SetRichTextParameters(
+    Data => \%Param,
+);
+
+=cut
+
+sub SetRichTextParameters {
+    my ( $Self, %Param ) = @_;
+
+    $Param{Data} ||= {};
+
+    # get and check param Data
+    if ( ref $Param{Data} ne 'HASH' ) {
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Need HashRef in Param Data! Got: '" . ref $Param{Data} . "'!",
+        );
+        $Self->FatalError();
+    }
+
+    # get needed objects
+    my $LanguageObject = $Kernel::OM->Get('Kernel::Language');
+    my $ConfigObject   = $Kernel::OM->Get('Kernel::Config');
+
+    # get needed variables
+    my $ScreenRichTextHeight;
+    my $ScreenRichTextWidth;
+
+    # set variable for 'RichText.Height' property
+    if ( $Param{Data}->{RichTextHeight} > 0 ) {
+        $ScreenRichTextHeight = $Param{Data}->{RichTextHeight};
+    }
+    else {
+        $ScreenRichTextHeight = $ConfigObject->Get("Frontend::RichTextHeight");
+    }
+
+    # set variable for 'RichText.Width' property
+    if ( $Param{Data}->{RichTextWidth} > 0 ) {
+        $ScreenRichTextWidth = $Param{Data}->{RichTextWidth};
+    }
+    else {
+        $ScreenRichTextWidth = $ConfigObject->Get("Frontend::RichTextWidth");
+    }
+
+    my $PictureUploadAction = $Param{Data}->{RichTextPictureUploadAction} || '';
+    my $TextDir             = $Self->{TextDirection}                      || '';
+    my $SpellChecker        = $Self->{BrowserSpellCheckerInline}          || '';
+    my $EditingAreaCSS = 'body.cke_editable { ' . $ConfigObject->Get("Frontend::RichText::DefaultCSS") . ' }';
+
+    # decide if we need to use the enhanced mode (with tables)
+    my @Toolbar;
+    my @ToolbarWithoutImage;
+
+    if ( $ConfigObject->Get("Frontend::RichText::EnhancedMode") == '1' ) {
+        @Toolbar = [
+            [
+                'Bold',   'Italic',       'Underline',    'Strike',        'Subscript',    'Superscript',
+                '-',      'NumberedList', 'BulletedList', 'Table',         '-',            'Outdent',
+                'Indent', '-',            'JustifyLeft',  'JustifyCenter', 'JustifyRight', 'JustifyBlock',
+                '-',      'Link',         'Unlink',       'Undo',          'Redo',         'SelectAll'
+            ],
+            '/',
+            [
+                'Image',   'HorizontalRule', 'PasteText', 'PasteFromWord', 'SplitQuote', 'RemoveQuote',
+                '-',       '-',              'Find',      'Replace',       'SpellCheck', 'TextColor',
+                'BGColor', 'RemoveFormat',   '-',         'ShowBlocks',    'Source',     'SpecialChar',
+                '-',       'Maximize'
+            ],
+            [ 'Format', 'Font', 'FontSize' ]
+        ];
+        @ToolbarWithoutImage = [
+            [
+                'Bold',   'Italic',       'Underline',    'Strike',        'Subscript',    'Superscript',
+                '-',      'NumberedList', 'BulletedList', 'Table',         '-',            'Outdent',
+                'Indent', '-',            'JustifyLeft',  'JustifyCenter', 'JustifyRight', 'JustifyBlock',
+                '-',      'Link',         'Unlink',       'Undo',          'Redo',         'SelectAll'
+            ],
+            '/',
+            [
+                'HorizontalRule', 'PasteText', 'PasteFromWord', 'SplitQuote', 'RemoveQuote', '-',
+                '-',              'Find',      'Replace',       'SpellCheck', 'TextColor',   'BGColor',
+                'RemoveFormat',   '-',         'ShowBlocks',    'Source',     'SpecialChar', '-',
+                'Maximize'
+            ],
+            [ 'Format', 'Font', 'FontSize' ]
+        ];
+    }
+    else {
+        @Toolbar = [
+            [
+                'Bold',          'Italic',       'Underline',      'Strike', '-',    'NumberedList',
+                'BulletedList',  '-',            'Outdent',        'Indent', '-',    'JustifyLeft',
+                'JustifyCenter', 'JustifyRight', 'JustifyBlock',   '-',      'Link', 'Unlink',
+                '-',             'Image',        'HorizontalRule', '-',      'Undo', 'Redo',
+                '-',             'Find',         'SpellCheck'
+            ],
+            '/',
+            [
+                'Format',       'Font', 'FontSize', '-',           'TextColor',  'BGColor',
+                'RemoveFormat', '-',    'Source',   'SpecialChar', 'SplitQuote', 'RemoveQuote',
+                '-',            'Maximize'
+            ]
+        ];
+        @ToolbarWithoutImage = [
+            [
+                'Bold',          'Italic',       'Underline',    'Strike',
+                '-',             'NumberedList', 'BulletedList', '-',
+                'Outdent',       'Indent',       '-',            'JustifyLeft',
+                'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-',
+                'Link',          'Unlink',       '-',            'HorizontalRule',
+                '-',             'Undo',         'Redo',         '-',
+                'Find',          'SpellCheck'
+            ],
+            '/',
+            [
+                'Format',       'Font', 'FontSize', '-',           'TextColor',  'BGColor',
+                'RemoveFormat', '-',    'Source',   'SpecialChar', 'SplitQuote', 'RemoveQuote',
+                '-',            'Maximize'
+            ]
+        ];
+    }
+
+    # set data with AddJSData()
+    $Self->AddJSData(
+        Key   => 'RichText',
+        Value => {
+            Height         => $ScreenRichTextHeight,
+            Width          => $ScreenRichTextWidth,
+            TextDir        => $TextDir,
+            SpellChecker   => $SpellChecker,
+            EditingAreaCSS => $EditingAreaCSS,
+            Lang           => {
+                SplitQuote  => $LanguageObject->Translate('Split Quote'),
+                RemoveQuote => $LanguageObject->Translate('Remove Quote'),
+            },
+            Toolbar             => $Toolbar[0],
+            ToolbarWithoutImage => $ToolbarWithoutImage[0],
+            PictureUploadAction => $PictureUploadAction,
+            }
+    );
+}
+
+=item CustomerSetRichTextParameters()
+
+set properties for customer rich text editor and send them to JS via AddJSData()
+
+$LayoutObject->CustomerSetRichTextParameters(
+    Data => \%Param,
+);
+
+=cut
+
+sub CustomerSetRichTextParameters {
+    my ( $Self, %Param ) = @_;
+
+    $Param{Data} ||= {};
+
+    # get and check param Data
+    if ( ref $Param{Data} ne 'HASH' ) {
+        $Kernel::OM->Get('Kernel::System::Log')->Log(
+            Priority => 'error',
+            Message  => "Need HashRef in Param Data! Got: '" . ref $Param{Data} . "'!",
+        );
+        $Self->FatalError();
+    }
+
+    # get needed objects
+    my $LanguageObject = $Kernel::OM->Get('Kernel::Language');
+    my $ConfigObject   = $Kernel::OM->Get('Kernel::Config');
+
+    my $ScreenRichTextHeight = $ConfigObject->Get("Frontend::RichTextHeight");
+    my $ScreenRichTextWidth  = $ConfigObject->Get("Frontend::RichTextWidth");
+    my $TextDir              = $Self->{TextDirection} || '';
+    my $SpellChecker         = $Self->{BrowserSpellCheckerInline} || '';
+    my $PictureUploadAction  = $Param{Data}->{RichTextPictureUploadAction} || '';
+    my $EditingAreaCSS       = 'body { ' . $ConfigObject->Get("Frontend::RichText::DefaultCSS") . ' }';
+
+    # decide if we need to use the enhanced mode (with tables)
+    my @Toolbar;
+    my @ToolbarWithoutImage;
+
+    if ( $ConfigObject->Get("Frontend::RichText::EnhancedMode::Customer") == '1' ) {
+        @Toolbar = [
+            [
+                'Bold',   'Italic',       'Underline',    'Strike',        'Subscript',    'Superscript',
+                '-',      'NumberedList', 'BulletedList', 'Table',         '-',            'Outdent',
+                'Indent', '-',            'JustifyLeft',  'JustifyCenter', 'JustifyRight', 'JustifyBlock',
+                '-',      'Link',         'Unlink',       'Undo',          'Redo',         'SelectAll'
+            ],
+            '/',
+            [
+                'Image',   'HorizontalRule', 'PasteText', 'PasteFromWord', 'SplitQuote', 'RemoveQuote',
+                '-',       '-',              'Find',      'Replace',       'SpellCheck', 'TextColor',
+                'BGColor', 'RemoveFormat',   '-',         'ShowBlocks',    'Source',     'SpecialChar',
+                '-',       'Maximize'
+            ],
+            [ 'Format', 'Font', 'FontSize' ]
+        ];
+        @ToolbarWithoutImage = [
+            [
+                'Bold',   'Italic',       'Underline',    'Strike',        'Subscript',    'Superscript',
+                '-',      'NumberedList', 'BulletedList', 'Table',         '-',            'Outdent',
+                'Indent', '-',            'JustifyLeft',  'JustifyCenter', 'JustifyRight', 'JustifyBlock',
+                '-',      'Link',         'Unlink',       'Undo',          'Redo',         'SelectAll'
+            ],
+            '/',
+            [
+                'HorizontalRule', 'PasteText', 'PasteFromWord', 'SplitQuote', 'RemoveQuote', '-',
+                '-',              'Find',      'Replace',       'SpellCheck', 'TextColor',   'BGColor',
+                'RemoveFormat',   '-',         'ShowBlocks',    'Source',     'SpecialChar', '-',
+                'Maximize'
+            ],
+            [ 'Format', 'Font', 'FontSize' ]
+        ];
+    }
+    else {
+        @Toolbar = [
+            [
+                'Bold',          'Italic',       'Underline',      'Strike', '-',    'NumberedList',
+                'BulletedList',  '-',            'Outdent',        'Indent', '-',    'JustifyLeft',
+                'JustifyCenter', 'JustifyRight', 'JustifyBlock',   '-',      'Link', 'Unlink',
+                '-',             'Image',        'HorizontalRule', '-',      'Undo', 'Redo',
+                '-',             'Find',         'SpellCheck'
+            ],
+            '/',
+            [
+                'Format',       'Font', 'FontSize', '-',           'TextColor',  'BGColor',
+                'RemoveFormat', '-',    'Source',   'SpecialChar', 'SplitQuote', 'RemoveQuote',
+                '-',            'Maximize'
+            ]
+        ];
+        @ToolbarWithoutImage = [
+            [
+                'Bold',          'Italic',       'Underline',    'Strike',
+                '-',             'NumberedList', 'BulletedList', '-',
+                'Outdent',       'Indent',       '-',            'JustifyLeft',
+                'JustifyCenter', 'JustifyRight', 'JustifyBlock', '-',
+                'Link',          'Unlink',       '-',            'HorizontalRule',
+                '-',             'Undo',         'Redo',         '-',
+                'Find',          'SpellCheck'
+            ],
+            '/',
+            [
+                'Format',       'Font', 'FontSize', '-',           'TextColor',  'BGColor',
+                'RemoveFormat', '-',    'Source',   'SpecialChar', 'SplitQuote', 'RemoveQuote',
+                '-',            'Maximize'
+            ]
+        ];
+    }
+
+    # set data with AddJSData()
+    $Self->AddJSData(
+        Key   => 'RichText',
+        Value => {
+            Height         => $ScreenRichTextHeight,
+            Width          => $ScreenRichTextWidth,
+            TextDir        => $TextDir,
+            SpellChecker   => $SpellChecker,
+            EditingAreaCSS => $EditingAreaCSS,
+            Lang           => {
+                SplitQuote => $LanguageObject->Translate('Split Quote'),
+            },
+            Toolbar             => $Toolbar[0],
+            ToolbarWithoutImage => $ToolbarWithoutImage[0],
+            PictureUploadAction => $PictureUploadAction,
+            }
+    );
+
 }
 
 1;

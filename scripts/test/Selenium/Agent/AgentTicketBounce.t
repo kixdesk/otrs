@@ -19,35 +19,29 @@ $Selenium->RunTest(
     sub {
 
         # get needed objects
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-            },
-        );
-        my $Helper          = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
-        my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
-        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+        my $Helper       = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+        my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
         # disable check email addresses
-        $ConfigObject->Set(
+        $Helper->ConfigSettingChange(
             Key   => 'CheckEmailAddresses',
             Value => 0,
         );
 
         # do not check RichText
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'Frontend::RichText',
             Value => 0
         );
 
         # do not check service and type
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'Ticket::Service',
             Value => 0
         );
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'Ticket::Type',
             Value => 0
@@ -119,7 +113,7 @@ $Selenium->RunTest(
         $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AgentTicketZoom;TicketID=$TicketID");
 
         # click to bounce ticket
-        $Selenium->find_element("//a[contains(\@href, 'Action=AgentTicketBounce') ]")->click();
+        $Selenium->find_element("//a[contains(\@href, 'Action=AgentTicketBounce') ]")->VerifiedClick();
 
         # switch to bounce window
         $Selenium->WaitFor( WindowCount => 2 );
@@ -140,7 +134,7 @@ $Selenium->RunTest(
         # check JS functionality
         # click on checkbox - unchecked state
         $Selenium->execute_script("\$('#InformSender').prop('checked', true)");
-        $Selenium->find_element( "#InformSender", 'css' )->click();
+        $Selenium->find_element( "#InformSender", 'css' )->VerifiedClick();
 
         # check up if labels does not have class Mandatory
         for my $Label (qw(To Subject RichText)) {
@@ -152,7 +146,7 @@ $Selenium->RunTest(
         }
 
         # click on checkbox - checked state
-        $Selenium->find_element( "#InformSender", 'css' )->click();
+        $Selenium->find_element( "#InformSender", 'css' )->VerifiedClick();
 
         # check up if labels have class Mandatory
         for my $Label (qw(To Subject RichText)) {
@@ -164,7 +158,7 @@ $Selenium->RunTest(
         }
 
         # set on initial unchecked state of checkbox
-        $Selenium->find_element( "#InformSender", 'css' )->click();
+        $Selenium->find_element( "#InformSender", 'css' )->VerifiedClick();
 
         # bounce ticket to another test email
         $Selenium->find_element( "#BounceTo", 'css' )->send_keys("test\@localhost.com");

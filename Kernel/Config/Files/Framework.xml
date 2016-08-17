@@ -462,6 +462,17 @@
             </Option>
         </Setting>
     </ConfigItem>
+    <ConfigItem Name="Frontend::RichText::EnhancedMode::Customer" Required="1" Valid="1">
+        <Description Translatable="1">Defines if the enhanced mode should be used (enables use of table, replace, subscript, superscript, paste from word, etc.) in customer interface.</Description>
+        <Group>Framework</Group>
+        <SubGroup>Core::Web</SubGroup>
+        <Setting>
+            <Option SelectedID="0">
+                <Item Key="0" Translatable="1">No</Item>
+                <Item Key="1" Translatable="1">Yes</Item>
+            </Option>
+        </Setting>
+    </ConfigItem>
     <ConfigItem Name="DisableIFrameOriginRestricted" Required="0" Valid="1">
         <Description Translatable="1">Disable HTTP header "X-Frame-Options: SAMEORIGIN" to allow OTRS to be included as an IFrame in other websites. Disabling this HTTP header can be a security issue! Only disable it, if you know what you are doing!</Description>
         <Group>Framework</Group>
@@ -9534,6 +9545,7 @@ via the Preferences button after logging in.
                 </NavBarModule>
                 <Loader>
                     <CSS>Core.Agent.Admin.SupportDataCollector.css</CSS>
+                    <JavaScript>Core.Agent.Admin.SupportDataCollector.js</JavaScript>
                 </Loader>
             </FrontendModuleReg>
         </Setting>
@@ -10492,16 +10504,6 @@ via the Preferences button after logging in.
             </Option>
         </Setting>
     </ConfigItem>
-    <ConfigItem Name="StandardTemplate2QueueByCreating" Required="0" Valid="0">
-        <Description Translatable="1">List of default Standard Templates which are assigned automatically to new Queues upon creation.</Description>
-        <Group>Framework</Group>
-        <SubGroup>Core</SubGroup>
-        <Setting>
-            <Array>
-                <Item></Item>
-            </Array>
-        </Setting>
-    </ConfigItem>
     <ConfigItem Name="Loader::Enabled::CSS" Required="1" Valid="1">
         <Description Translatable="1">If enabled, OTRS will deliver all CSS files in minified form.</Description>
         <Group>Framework</Group>
@@ -10612,6 +10614,7 @@ via the Preferences button after logging in.
                 <Item>Core.Agent.js</Item>
                 <Item>Core.Agent.Search.js</Item>
                 <Item>Core.Agent.CustomerInformationCenterSearch.js</Item>
+                <Item>Core.Agent.Header.js</Item>
                 <Item>Core.UI.Notification.js</Item>
                 <Item>Core.Agent.Responsive.js</Item>
             </Array>
@@ -10624,6 +10627,16 @@ via the Preferences button after logging in.
         <Setting>
             <Array>
                 <Item>thirdparty/jquery-migrate-1.2.1/jquery-migrate.js</Item>
+            </Array>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="Loader::Agent::CommonJS###100-CKEditor" Required="1" Valid="1">
+        <Description Translatable="1">List of JS files to always be loaded for the agent interface.</Description>
+        <Group>Framework</Group>
+        <SubGroup>Core::Web</SubGroup>
+        <Setting>
+            <Array>
+                <Item>thirdparty/ckeditor-4.5.6/ckeditor.js</Item>
             </Array>
         </Setting>
     </ConfigItem>
@@ -10703,12 +10716,22 @@ via the Preferences button after logging in.
         </Setting>
     </ConfigItem>
     <ConfigItem Name="Loader::Customer::CommonJS###001-JQueryMigrate" Required="0" Valid="0">
-        <Description Translatable="1">List of JS files to always be loaded for the agent interface.</Description>
+        <Description Translatable="1">List of JS files to always be loaded for the customer interface.</Description>
         <Group>Framework</Group>
         <SubGroup>Core::Web</SubGroup>
         <Setting>
             <Array>
                 <Item>thirdparty/jquery-migrate-1.2.1/jquery-migrate.js</Item>
+            </Array>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="Loader::Customer::CommonJS###100-CKEditor" Required="1" Valid="1">
+        <Description Translatable="1">List of JS files to always be loaded for the customer interface.</Description>
+        <Group>Framework</Group>
+        <SubGroup>Core::Web</SubGroup>
+        <Setting>
+            <Array>
+                <Item>thirdparty/ckeditor-4.5.6/ckeditor.js</Item>
             </Array>
         </Setting>
     </ConfigItem>

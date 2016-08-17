@@ -21,17 +21,11 @@ $Selenium->RunTest(
         # ok, first we delete all pre-existing sessions
         $Kernel::OM->Get('Kernel::System::Console::Command::Maint::Session::DeleteAll')->Execute();
 
-        # get needed objects
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-            },
-        );
-        my $Helper          = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
-        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+        # get helper object
+        my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
         # get UserOnline config
-        my %UserOnlineSysConfig = $SysConfigObject->ConfigItemGet(
+        my %UserOnlineSysConfig = $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemGet(
             Name    => 'DashboardBackend###0400-UserOnline',
             Default => 1,
         );
@@ -40,7 +34,7 @@ $Selenium->RunTest(
             grep { defined $_->{Key} } @{ $UserOnlineSysConfig{Setting}->[1]->{Hash}->[1]->{Item} };
 
         # enable UserOnline and set it to load as default plugin
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'DashboardBackend###0400-UserOnline',
             Value => {
@@ -81,7 +75,7 @@ $Selenium->RunTest(
         );
 
         # switch to online customers and test UserOnline plugin for customers
-        $Selenium->find_element("//a[contains(\@id, \'Customer' )]")->click();
+        $Selenium->find_element("//a[contains(\@id, \'Customer' )]")->VerifiedClick();
 
         # Wait for AJAX
         my $ExpectedCustomer = "$TestCustomerUserLogin";

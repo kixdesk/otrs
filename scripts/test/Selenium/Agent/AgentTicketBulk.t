@@ -19,11 +19,6 @@ $Selenium->RunTest(
     sub {
 
         # get helper object
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-            },
-        );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
         # create test user and login
@@ -90,9 +85,9 @@ $Selenium->RunTest(
         );
 
         # select both tickets and click on "bulk"
-        $Selenium->find_element("//input[\@value='$Tickets[0]->{TicketID}']")->click();
-        $Selenium->find_element("//input[\@value='$Tickets[1]->{TicketID}']")->click();
-        $Selenium->find_element( "Bulk", 'link_text' )->click();
+        $Selenium->find_element("//input[\@value='$Tickets[0]->{TicketID}']")->VerifiedClick();
+        $Selenium->find_element("//input[\@value='$Tickets[1]->{TicketID}']")->VerifiedClick();
+        $Selenium->find_element( "Bulk", 'link_text' )->VerifiedClick();
 
         # switch to bulk window
         $Selenium->WaitFor( WindowCount => 2 );

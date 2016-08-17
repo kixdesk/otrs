@@ -19,26 +19,20 @@ $Selenium->RunTest(
     sub {
 
         # get helper object
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-            },
-        );
-        my $Helper          = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
-        my $GroupObject     = $Kernel::OM->Get('Kernel::System::Group');
-        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
-        my $TicketObject    = $Kernel::OM->Get('Kernel::System::Ticket');
-        my $DBObject        = $Kernel::OM->Get('Kernel::System::DB');
+        my $Helper       = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+        my $GroupObject  = $Kernel::OM->Get('Kernel::System::Group');
+        my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
+        my $DBObject     = $Kernel::OM->Get('Kernel::System::DB');
 
         # enable ticket responsible
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'Ticket::Responsible',
             Value => 1
         );
 
         # enable ticket watcher feature
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'Ticket::Watcher',
             Value => 1
@@ -98,7 +92,7 @@ $Selenium->RunTest(
 
         # set group restriction for each toolbar module
         for my $ConfigUpdate (@Tests) {
-            my %ToolBarConfig = $SysConfigObject->ConfigItemGet(
+            my %ToolBarConfig = $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemGet(
                 Name    => 'Frontend::ToolBarModule###' . $ConfigUpdate->{ToolBarModule},
                 Default => 1,
             );
@@ -108,7 +102,7 @@ $Selenium->RunTest(
 
             $ToolBarConfig{Group} = "ro:$TestGroup";
 
-            $SysConfigObject->ConfigItemUpdate(
+            $Helper->ConfigSettingChange(
                 Valid => 1,
                 Key   => 'Frontend::ToolBarModule###' . $ConfigUpdate->{ToolBarModule},
                 Value => \%ToolBarConfig,

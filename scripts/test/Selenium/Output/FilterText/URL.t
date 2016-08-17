@@ -19,11 +19,6 @@ $Selenium->RunTest(
     sub {
 
         # get helper object
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-                }
-        );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
         # create test user and login
@@ -91,15 +86,12 @@ $Selenium->RunTest(
             "TextURL link $BodyText on zoom view - found",
         );
 
-        # get sysconfig object
-        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
-
         # turn off OutputFilter TextURL in sysconfig
-        my %TextURL = $SysConfigObject->ConfigItemGet(
+        my %TextURL = $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemGet(
             Name    => 'Frontend::Output::FilterText###AAAURL',
             Default => 1,
         );
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 0,
             Key   => 'Frontend::Output::FilterText###AAAURL',
             Value => \%TextURL,

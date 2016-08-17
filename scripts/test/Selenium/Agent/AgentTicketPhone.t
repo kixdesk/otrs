@@ -19,35 +19,29 @@ $Selenium->RunTest(
     sub {
 
         # get needed objects
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-            },
-        );
-        my $Helper          = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
-        my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
-        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+        my $Helper       = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
+        my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
         # do not check email addresses
-        $ConfigObject->Set(
+        $Helper->ConfigSettingChange(
             Key   => 'CheckEmailAddresses',
             Value => 0,
         );
 
         # do not check RichText
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'Frontend::RichText',
             Value => 0,
         );
 
         # do not check service and type
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'Ticket::Service',
             Value => 0,
         );
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'Ticket::Type',
             Value => 0,
@@ -125,7 +119,7 @@ $Selenium->RunTest(
         my $TicketBody         = "Selenium body test";
         $Selenium->find_element( "#FromCustomer", 'css' )->send_keys($TestCustomer);
         $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $("li.ui-menu-item:visible").length' );
-        $Selenium->find_element("//*[text()='$AutoCompleteString']")->click();
+        $Selenium->find_element("//*[text()='$AutoCompleteString']")->VerifiedClick();
         $Selenium->execute_script("\$('#Dest').val('2||Raw').trigger('redraw.InputField').trigger('change');");
         $Selenium->find_element( "#Subject",  'css' )->send_keys($TicketSubject);
         $Selenium->find_element( "#RichText", 'css' )->send_keys($TicketBody);
@@ -154,7 +148,8 @@ $Selenium->RunTest(
         );
 
         # go to ticket zoom page of created test ticket
-        $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketZoom;TicketID=$TicketID' )]")->click();
+        $Selenium->find_element("//a[contains(\@href, \'Action=AgentTicketZoom;TicketID=$TicketID' )]")
+            ->VerifiedClick();
 
         # check if test ticket values are genuine
         $Self->True(
@@ -170,8 +165,56 @@ $Selenium->RunTest(
             "$TestCustomer found on page",
         );
 
+        # Test bug #12229
+        my $QueueID = $Kernel::OM->Get('Kernel::System::Queue')->QueueAdd(
+            Name            => '<Queue>',
+            ValidID         => 1,
+            GroupID         => 1,
+            SystemAddressID => 1,
+            SalutationID    => 1,
+            SignatureID     => 1,
+            Comment         => 'Some comment',
+            UserID          => 1,
+        );
+
+        $Self->True(
+            $QueueID,
+            "Queue created."
+        );
+
+        # navigate to AgentTicketPhone screen
+        $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AgentTicketPhone");
+
+        # select <Queue>
+        $Selenium->execute_script(
+            "\$('#Dest option').filter(function () { return this.text == '<Queue>'; }).attr('selected',true);"
+                . " \$('#Dest').trigger('redraw.InputField').trigger('change');"
+        );
+
+        # wait for loader (AJAX used to create mess)
+        $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && !$(".AJAXLoader:visible").length' );
+
+        # check <Queue> is displayed as selected
+        $Self->True(
+            $Selenium->WaitFor(
+                JavaScript =>
+                    "return typeof(\$) === \"function\" && \$('div.Text').filter(function () { return this.textContent == '<Queue>'; }).length;"
+            ),
+            'Make sure that <Queue> is displayed.',
+        );
+
+        # delete Queue
+        my $Success = $Kernel::OM->Get('Kernel::System::DB')->Do(
+            SQL  => "DELETE FROM queue WHERE id = ?",
+            Bind => [ \$QueueID ],
+        );
+        $Self->True(
+            $Success,
+            "Queue deleted",
+        );
+
         # delete created test ticket
-        my $Success = $TicketObject->TicketDelete(
+        $Success = $TicketObject->TicketDelete(
             TicketID => $TicketID,
             UserID   => 1,
         );

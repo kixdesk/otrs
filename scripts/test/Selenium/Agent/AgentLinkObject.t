@@ -19,35 +19,20 @@ $Selenium->RunTest(
     sub {
 
         # get helper object
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-            },
-        );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
-        # get sysconfig object
-        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
-
         # set link object view mode to simple
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'LinkObject::ViewMode',
             Value => 'Simple',
         );
 
         # set Ticket::SubjectSize
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'Ticket::SubjectSize',
             Value => '60',
-        );
-
-        # Enable Ticket::ArchiveSystem
-        $SysConfigObject->ConfigItemUpdate(
-            Valid => 1,
-            Key   => 'Ticket::ArchiveSystem',
-            Value => 1,
         );
 
         # create test user and login
@@ -107,7 +92,8 @@ $Selenium->RunTest(
         );
 
         # click on 'Link'
-        $Selenium->find_element("//a[contains(\@href, \'Action=AgentLinkObject;SourceObject=Ticket;' )]")->click();
+        $Selenium->find_element("//a[contains(\@href, \'Action=AgentLinkObject;SourceObject=Ticket;' )]")
+            ->VerifiedClick();
 
         # switch to link object window
         $Selenium->WaitFor( WindowCount => 2 );
@@ -126,11 +112,11 @@ $Selenium->RunTest(
         $Selenium->find_element(".//*[\@id='SEARCH::TicketNumber']")->VerifiedSubmit();
 
         # link created test tickets
-        $Selenium->find_element("//input[\@value='$TicketIDs[1]'][\@type='checkbox']")->click();
+        $Selenium->find_element("//input[\@value='$TicketIDs[1]'][\@type='checkbox']")->VerifiedClick();
         $Selenium->execute_script(
             "\$('#TypeIdentifier').val('ParentChild::Target').trigger('redraw.InputField').trigger('change');"
         );
-        $Selenium->find_element("//button[\@type='submit'][\@name='AddLinks']")->VerifiedClick();
+        $Selenium->find_element("//button[\@type='submit'][\@name='AddLinks']")->click();
 
         # close link object window and switch back to agent ticket zoom
         $Selenium->close();
@@ -165,7 +151,7 @@ $Selenium->RunTest(
 
         # test ticket title length in complex view for linked tickets, see bug #11511
         # set link object view mode to complex
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'LinkObject::ViewMode',
             Value => 'Complex',
@@ -254,7 +240,7 @@ $Selenium->RunTest(
                 'return typeof($) === "function" && $("#linkobject-Ticket_submit:visible").length;'
         );
 
-        sleep(1);
+        sleep 1;
 
         # Remove Age from left side, and put it to the right side
         $Selenium->DragAndDrop(
@@ -337,7 +323,8 @@ $Selenium->RunTest(
         );
 
         # click on 'Link'
-        $Selenium->find_element("//a[contains(\@href, \'Action=AgentLinkObject;SourceObject=Ticket;' )]")->click();
+        $Selenium->find_element("//a[contains(\@href, \'Action=AgentLinkObject;SourceObject=Ticket;' )]")
+            ->VerifiedClick();
 
         # switch to link object window
         $Selenium->WaitFor( WindowCount => 2 );

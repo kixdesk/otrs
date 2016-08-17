@@ -19,18 +19,10 @@ $Selenium->RunTest(
     sub {
 
         # get helper object
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-                }
-        );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
-        # get sysconfig object
-        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
-
         # enable MIME-Viewer for PDF attachment
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'MIME-Viewer###application/pdf',
             Value => "echo 'OTRS.org TEST'",
@@ -112,7 +104,7 @@ $Selenium->RunTest(
         );
 
         # check test attachment in MIME-Viwer, WaitFor will be done after switch to window
-        $Selenium->find_element("//a[contains(\@title, \'Viewer' )]")->click();
+        $Selenium->find_element("//a[contains(\@title, \'Viewer' )]")->VerifiedClick();
 
         # switch to link object window
         $Selenium->WaitFor( WindowCount => 2 );

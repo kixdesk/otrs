@@ -1,4 +1,8 @@
 #6.0.0.beta1 2016-??-??
+ - 2016-08-12 Fixed bug#[12229](http://bugs.otrs.org/show_bug.cgi?id=12229) - Queue is not selectable if the name contains "<" or ">" characters.
+ - 2015-08-01 Updated CPAN module CGI to version 4.32.
+ - 2016-07-26 Added a new postmaster filter to decrypt and handle encrypted mails.
+ - 2016-07-18 Fixed bug#[7860](http://bugs.otrs.org/show_bug.cgi?id=7860) - AgentTicketSearch and Statistics are missing TicketPending option.
  - 2016-07-13 Added a javascript templating mechanism. Use Core.Template.Render() to fill given templates from either files or strings with data.
  - 2016-06-24 Improved TicketSearch() to return error on a search for inexistent dynamic fields instead of ignoring them, thanks to Moritz Lenz.
  - 2016-06-06 Added checks for length of words in search terms when using search index/StaticDB backend.
@@ -44,7 +48,24 @@
  - 2015-11-27 Improved Generic Agent performance at deleting old execution times. Thanks to Moritz Lenz @ noris networks.
  - 2015-11-27 Improved command Maint::Ticket::InvalidUserCleanup. It can now now both unlock tickets of invalid users and also (optionally) change their state to make sure they will not be overlooked. Thanks to Moritz Lenz @ noris networks.
 
-#5.0.12 2016-??-??
+#5.0.13 2016-??-??
+ - 2016-08-15 Fixed bug#[12245](http://bugs.otrs.org/show_bug.cgi?id=12245) - Missing information for Article Dynamic Fields update event thanks to Rene (rwese).
+ - 2016-08-15 Fixed a problem with the axis exchange not working correctly in the OTRS Business Solution™ reports.
+ - 2016-08-12 Fixed bug#[4389](http://bugs.otrs.org/show_bug.cgi?id=4389) - Singular/plural issue with age.
+ - 2016-08-12 Fixed bug#[12218](http://bugs.otrs.org/show_bug.cgi?id=12218) - PostmasterFilter, not possible to set X-OTRS-DynamicField.
+ - 2016-08-12 Fixed bug#[8705](http://bugs.otrs.org/show_bug.cgi?id=8705) - StandardResponse2QueueByCreating in wrong Sysconfig area.
+ - 2016-08-12 Fixed bug#[4439](http://bugs.otrs.org/show_bug.cgi?id=4439) - Ticket sort order is based on database ids.
+ - 2016-08-12 Fixed bug#[12224](http://bugs.otrs.org/show_bug.cgi?id=12224) - Plain password stored in database temporarily when adding new users.
+ - 2016-08-12 Follow-up fix for bug#[12150](http://bugs.otrs.org/show_bug.cgi?id=12150) - Ticket::HookDivider missing in TicketZoom and History View.
+ - 2016-08-08 Fixed bug#[12205](http://bugs.otrs.org/show_bug.cgi?id=12205) - Default setting for Ticket::Frontend::CustomerTicketMessage###TicketTypeDefault incorrect.
+
+#5.0.12 2016-08-09
+ - 2016-08-09 Fixed bug#[12232](http://bugs.otrs.org/show_bug.cgi?id=12232) - Modern input fields leaves a broken value on refresh.
+ - 2016-08-05 Fixed bug#[12086](http://bugs.otrs.org/show_bug.cgi?id=12086) - Labels overflows for some languages.
+ - 2016-08-05 Fixed bug#[12221](http://bugs.otrs.org/show_bug.cgi?id=12221) - Key/value fields are very small in AdminProcessManagementTransitionAction.
+ - 2016-08-03 Updated translations, thanks to all translators.
+ - 2016-07-29 Fixed bug#[12196](http://bugs.otrs.org/show_bug.cgi?id=12196) - SOAP Response missing trailing slash.
+ - 2016-07-24 Followup for bug#[12090](http://bugs.otrs.org/show_bug.cgi?id=12090) - 2 second sleep between email fetching causes bad performance on systems with high email traffic.
  - 2016-07-13 Fixed bug#[12118](http://bugs.otrs.org/show_bug.cgi?id=12118) - Text Area filter doesn't work for Statistic.
  - 2016-07-13 Fixed bug#[12189](http://bugs.otrs.org/show_bug.cgi?id=12189) - ACL beginning with @ results in 500 internal server error.
  - 2016-07-12 Fixed bug#[12185](http://bugs.otrs.org/show_bug.cgi?id=12185) - Sometimes page leave confirmation is shown when completing a popup action.
@@ -60,6 +81,7 @@
  - 2016-07-08 Fixed bug#[12134](http://bugs.otrs.org/show_bug.cgi?id=12134) - Tag <OTRS_CUSTOMER_REALNAME> wrongly documented.
  - 2016-07-08 Fixed bug#[7108](http://bugs.otrs.org/show_bug.cgi?id=7108) - Email not sent if FQDN has port number in it.
  - 2016-07-07 Fixed bug#[12178](http://bugs.otrs.org/show_bug.cgi?id=12178) - CustomerUser in Config.pm breaks the system.
+ - 2016-07-06 Fixed bug#[8671](http://bugs.otrs.org/show_bug.cgi?id=8671) - Can not link to archived ticket.
  - 2016-07-04 Fixed bug#[12147](http://bugs.otrs.org/show_bug.cgi?id=12147) - Transition Action - to set Service and SLA.
  - 2016-07-01 Fixed bug#[12141](http://bugs.otrs.org/show_bug.cgi?id=12141) - Wrong check for needed objects.
  - 2016-07-01 Fixed bug#[8640](http://bugs.otrs.org/show_bug.cgi?id=8640) - Article bounce does not conform to rfc 2822.
@@ -78,6 +100,7 @@
  - 2016-06-23 Fixed bug#[11981](http://bugs.otrs.org/show_bug.cgi?id=11981) - GenericTicketConnector ignoring "<ContentSearch>OR</ContentSearch>" in full text search.
 
 #5.0.11 2016-06-28
+ - 2016-08-03 Updated translations, thanks to all translators.
  - 2016-06-22 Updated translations, thanks to all translators.
  - 2016-06-22 Fixed bug#[12143](http://bugs.otrs.org/show_bug.cgi?id=12143) - TicketSearch: if you filter a search attribute and then select 'all', the search screen disappear.
  - 2016-06-21 Fixed bug#[12114](http://bugs.otrs.org/show_bug.cgi?id=12114) - Reply to an outbound email-internal may fail to be classified as email-internal.
@@ -119,7 +142,7 @@
  - 2016-05-20 Fixed bug#[8153](http://bugs.otrs.org/show_bug.cgi?id=8153) - When configuration area is not activated, it is still editable.
  - 2016-05-20 Fixed bug#[12084](http://bugs.otrs.org/show_bug.cgi?id=12084) - Missing day names from 7 Day Stat.
  - 2016-05-20 Fixed bug#[12066](http://bugs.otrs.org/show_bug.cgi?id=12066) - Hamburger icon shows up unwanted.
- - 2016-05-19 Fixed bug#[9950](http://bugs.otrs.org/show_bug.cgi?id=9950) - Ticket Split takes uses system address as the customer.
+ - 2016-05-19 Followup for bug#[9950](http://bugs.otrs.org/show_bug.cgi?id=9950) - Ticket Split takes uses system address as the customer.
  - 2016-05-15 Added possibility to sign and/or encrypt ticket notifications.
  - 2016-05-13 Fixed bug#[12045](http://bugs.otrs.org/show_bug.cgi?id=12045) - Not possible to create a Ticket using TransitionAction::TicketCreate with Owner instead of OwnerID.
  - 2016-05-12 Fixed bug#[12062](http://bugs.otrs.org/show_bug.cgi?id=12062) - From field with dot is filled with spaces.

@@ -19,19 +19,12 @@ $Selenium->RunTest(
     sub {
 
         # get helper object
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-            },
-        );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
-        $Kernel::OM->Get('Kernel::Config')->Set(
+        $Helper->ConfigSettingChange(
             Key   => 'CheckEmailAddresses',
             Value => 0,
         );
-
-        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
 
         # enable CustomerUserGenericTicket sysconfig
         my @CustomerSysConfig = ( '1-GoogleMaps', '2-Google', '2-LinkedIn', '3-XING' );
@@ -40,7 +33,7 @@ $Selenium->RunTest(
 
             # get default sysconfig
             my $SysConfigName  = 'Frontend::CustomerUser::Item###' . $SysConfigChange;
-            my %CustomerConfig = $SysConfigObject->ConfigItemGet(
+            my %CustomerConfig = $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemGet(
                 Name    => $SysConfigName,
                 Default => 1,
             );
@@ -54,7 +47,7 @@ $Selenium->RunTest(
             %CustomerConfig = map { $_->{Key} => $_->{Content} }
                 grep { defined $_->{Key} } @{ $CustomerConfig{Setting}->[1]->{Hash}->[1]->{Item} };
 
-            $SysConfigObject->ConfigItemUpdate(
+            $Helper->ConfigSettingChange(
                 Valid => 1,
                 Key   => $SysConfigName,
                 Value => \%CustomerConfig,

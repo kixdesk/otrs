@@ -18,17 +18,11 @@ my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 $Selenium->RunTest(
     sub {
 
-        # get needed objects
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-            },
-        );
-        my $Helper          = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
-        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+        # get helper object
+        my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
         # get dashboard ProductNotify plugin default sysconfig
-        my %ProductNotifyConfig = $SysConfigObject->ConfigItemGet(
+        my %ProductNotifyConfig = $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemGet(
             Name    => 'DashboardBackend###0000-ProductNotify',
             Default => 1,
         );
@@ -37,7 +31,7 @@ $Selenium->RunTest(
         %ProductNotifyConfig = map { $_->{Key} => $_->{Content} }
             grep { defined $_->{Key} } @{ $ProductNotifyConfig{Setting}->[1]->{Hash}->[1]->{Item} };
 
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'DashboardBackend###0000-ProductNotify',
             Value => \%ProductNotifyConfig,
@@ -74,6 +68,12 @@ EOF
                 Type     => 'Agent',
                 User     => $TestUserLogin,
                 Password => $TestUserLogin,
+            );
+
+            # wait until page has loaded, if necessary
+            $Selenium->WaitFor(
+                JavaScript =>
+                    'return typeof($) === "function" && $(".WidgetSimple").length;'
             );
 
             # test if ProductNotify plugin shows correct link

@@ -19,11 +19,6 @@ $Selenium->RunTest(
     sub {
 
         # get helper object
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-                }
-        );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
         # enable CustomerUserGenericTicket sysconfig
@@ -34,12 +29,9 @@ $Selenium->RunTest(
 
         for my $SysConfigChange (@CustomerSysConfig) {
 
-            # get sysconfig object
-            my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
-
             # get default sysconfig
             my $SysConfigName = 'Frontend::CustomerUser::Item###' . $SysConfigChange;
-            my %Config        = $SysConfigObject->ConfigItemGet(
+            my %Config        = $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemGet(
                 Name    => $SysConfigName,
                 Default => 1,
             );
@@ -48,7 +40,7 @@ $Selenium->RunTest(
             %Config = map { $_->{Key} => $_->{Content} }
                 grep { defined $_->{Key} } @{ $Config{Setting}->[1]->{Hash}->[1]->{Item} };
 
-            $SysConfigObject->ConfigItemUpdate(
+            $Helper->ConfigSettingChange(
                 Valid => 1,
                 Key   => $SysConfigName,
                 Value => \%Config,
@@ -156,7 +148,7 @@ $Selenium->RunTest(
             # click on link
             $Selenium->find_element(
                 "//a[contains(\@href, \'$TicketData{$TestLinks}->{TicketLink};CustomerUserLogin=$TestCustomerUserLogin' )]"
-            )->click();
+            )->VerifiedClick();
 
             $Selenium->WaitFor( WindowCount => 2 );
 
@@ -178,7 +170,7 @@ $Selenium->RunTest(
             # click on 'Change search option'
             $Selenium->find_element(
                 "//a[contains(\@href, \'AgentTicketSearch;Subaction=LoadProfile' )]"
-            )->click();
+            )->VerifiedClick();
 
             # link open in new window switch to it
             $Handles = $Selenium->get_window_handles();
@@ -207,7 +199,7 @@ $Selenium->RunTest(
 
                 $Self->True(
                     $Success,
-                    "Delete ticket - $TicketID"
+                    "Delete ticket - $TicketID",
                 );
             }
         }

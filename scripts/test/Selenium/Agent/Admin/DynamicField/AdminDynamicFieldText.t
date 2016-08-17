@@ -19,17 +19,9 @@ $Selenium->RunTest(
     sub {
 
         # get helper object
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-            },
-        );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
-        # get sysconfig object
-        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
-
-        my %DynamicFieldsOverviewPageShownSysConfig = $SysConfigObject->ConfigItemGet(
+        my %DynamicFieldsOverviewPageShownSysConfig = $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemGet(
             Name => 'PreferencesGroups###DynamicFieldsOverviewPageShown',
         );
 
@@ -37,7 +29,7 @@ $Selenium->RunTest(
             grep { defined $_->{Key} } @{ $DynamicFieldsOverviewPageShownSysConfig{Setting}->[1]->{Hash}->[1]->{Item} };
 
         # show more dynamic fields per page as the default value
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'PreferencesGroups###DynamicFieldsOverviewPageShown',
             Value => {
@@ -101,13 +93,13 @@ $Selenium->RunTest(
 
             $Selenium->find_element( "#Name",                        'css' )->send_keys($RandomID);
             $Selenium->find_element( "#Label",                       'css' )->send_keys($RandomID);
-            $Selenium->find_element( "#AddRegEx",                    'css' )->click();
+            $Selenium->find_element( "#AddRegEx",                    'css' )->VerifiedClick();
             $Selenium->find_element( "#RegEx_1",                     'css' )->send_keys($RegEx);
             $Selenium->find_element( "#CustomerRegExErrorMessage_1", 'css' )->send_keys($RegExErrorTxt);
 
             # verify JS - add, remove and RegEx block validation
-            $Selenium->find_element( "#AddRegEx", 'css' )->click();
-            $Selenium->find_element( "#Name",     'css' )->submit();
+            $Selenium->find_element( "#AddRegEx", 'css' )->VerifiedClick();
+            $Selenium->find_element( "#Name",     'css' )->VerifiedSubmit();
 
             $Self->Is(
                 $Selenium->execute_script(
@@ -118,7 +110,7 @@ $Selenium->RunTest(
             );
 
             $Selenium->find_element( "#RegEx_2",       'css' )->send_keys($RegEx);
-            $Selenium->find_element( "#RemoveRegEx_2", 'css' )->click();
+            $Selenium->find_element( "#RemoveRegEx_2", 'css' )->VerifiedClick();
 
             # submit form
             $Selenium->find_element( "#Name", 'css' )->VerifiedSubmit();

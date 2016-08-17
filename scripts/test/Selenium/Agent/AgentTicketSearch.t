@@ -19,25 +19,16 @@ $Selenium->RunTest(
     sub {
 
         # get helper object
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-            },
-        );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
-        # get sysconfig object
-        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
-
         # make sure we start with RuntimeDB search
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'Ticket::SearchIndexModule',
             Value => 'Kernel::System::Ticket::ArticleSearchIndex::RuntimeDB',
         );
 
-        my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-        $ConfigObject->Set(
+        $Helper->ConfigSettingChange(
             Key   => 'Ticket::SearchIndexModule',
             Value => 'Kernel::System::Ticket::ArticleSearchIndex::RuntimeDB',
         );
@@ -163,26 +154,23 @@ $Selenium->RunTest(
         );
 
         # change search index module
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'Ticket::SearchIndexModule',
             Value => 'Kernel::System::Ticket::ArticleSearchIndex::StaticDB',
         );
 
-        $ConfigObject->Set(
+        $Helper->ConfigSettingChange(
             Key   => 'Ticket::SearchIndexModule',
             Value => 'Kernel::System::Ticket::ArticleSearchIndex::StaticDB',
         );
 
         # enable warn on stop word usage
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'Ticket::SearchIndex::WarnOnStopWordUsage',
             Value => 1,
         );
-
-        # allow mod_perl to pick up the configuration changes
-        sleep 1;
 
         # Recreate TicketObject and update article index for staticdb
         $Kernel::OM->ObjectsDiscard( Objects => ['Kernel::System::Ticket'] );
@@ -208,7 +196,7 @@ $Selenium->RunTest(
         my $ExpectedAlertText = "Fulltext: $MinCharString";
         $Self->True(
             $Selenium->get_alert_text() =~ /$ExpectedAlertText/,
-            'Minimum character string search warning is found'
+            'Minimum character string search warning is found',
         );
 
         # accept alert
@@ -225,7 +213,7 @@ $Selenium->RunTest(
         $ExpectedAlertText = "Fulltext: $MaxCharString";
         $Self->True(
             $Selenium->get_alert_text() =~ /$ExpectedAlertText/,
-            'Maximum character string search warning is found'
+            'Maximum character string search warning is found',
         );
 
         # accept alert
@@ -242,7 +230,7 @@ $Selenium->RunTest(
         $ExpectedAlertText = "Fulltext: because";
         $Self->True(
             $Selenium->get_alert_text() =~ /$ExpectedAlertText/,
-            'Stop word search string warning is found'
+            'Stop word search string warning is found',
         );
 
         # accept alert
@@ -268,7 +256,7 @@ $Selenium->RunTest(
         );
         $Self->True(
             $Success,
-            "Ticket with ticket ID $TicketID is deleted"
+            "Ticket with ticket ID $TicketID is deleted",
         );
 
         # make sure the cache is correct

@@ -213,7 +213,8 @@ sub TableCreateComplex {
     );
 
     # define the block data
-    my $TicketHook = $ConfigObject->Get('Ticket::Hook');
+    my $TicketHook        = $ConfigObject->Get('Ticket::Hook');
+    my $TicketHookDivider = $ConfigObject->Get('Ticket::HookDivider');
 
     my @Headline = (
         {
@@ -369,7 +370,7 @@ sub TableCreateComplex {
                 Link    => $Self->{LayoutObject}->{Baselink}
                     . 'Action=AgentTicketZoom;TicketID='
                     . $TicketID,
-                Title    => "Ticket# $Ticket->{TicketNumber}",
+                Title    => "$TicketHook$TicketHookDivider$Ticket->{TicketNumber}",
                 CssClass => $CssClass,
             },
         );
@@ -573,8 +574,9 @@ sub TableCreateSimple {
         return;
     }
 
-    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-    my $TicketHook   = $ConfigObject->Get('Ticket::Hook');
+    my $ConfigObject      = $Kernel::OM->Get('Kernel::Config');
+    my $TicketHook        = $ConfigObject->Get('Ticket::Hook');
+    my $TicketHookDivider = $ConfigObject->Get('Ticket::HookDivider');
 
     my %LinkOutputData;
     for my $LinkType ( sort keys %{ $Param{ObjectLinkListWithData} } ) {
@@ -605,7 +607,7 @@ sub TableCreateSimple {
                 my %Item = (
                     Type    => 'Link',
                     Content => 'T:' . $Ticket->{TicketNumber},
-                    Title   => "$TicketHook$Ticket->{TicketNumber}: $Ticket->{Title}",
+                    Title   => "$TicketHook$TicketHookDivider$Ticket->{TicketNumber}: $Ticket->{Title}",
                     Link    => $Self->{LayoutObject}->{Baselink}
                         . 'Action=AgentTicketZoom;TicketID='
                         . $TicketID,
@@ -757,6 +759,15 @@ sub SearchOptionList {
             };
     }
 
+    if ( $Kernel::OM->Get('Kernel::Config')->Get('Ticket::ArchiveSystem') ) {
+        push @SearchOptionList,
+            {
+            Key  => 'ArchiveID',
+            Name => 'Archive search',
+            Type => 'List',
+            };
+    }
+
     # add formkey
     for my $Row (@SearchOptionList) {
         $Row->{FormKey} = 'SEARCH::' . $Row->{Key};
@@ -796,6 +807,8 @@ sub SearchOptionList {
             my @FormData = $Kernel::OM->Get('Kernel::System::Web::Request')->GetArray( Param => $Row->{FormKey} );
             $Row->{FormData} = \@FormData;
 
+            my $Multiple = 1;
+
             my %ListData;
             if ( $Row->{Key} eq 'StateIDs' ) {
                 %ListData = $Kernel::OM->Get('Kernel::System::State')->StateList(
@@ -812,6 +825,17 @@ sub SearchOptionList {
                     UserID => $Self->{UserID},
                 );
             }
+            elsif ( $Row->{Key} eq 'ArchiveID' ) {
+                %ListData = (
+                    ArchivedTickets    => Translatable('Archived tickets'),
+                    NotArchivedTickets => Translatable('Unarchived tickets'),
+                    AllTickets         => Translatable('All tickets'),
+                );
+                if ( !scalar @{ $Row->{FormData} } ) {
+                    $Row->{FormData} = ['NotArchivedTickets'];
+                }
+                $Multiple = 0;
+            }
 
             # add the input string
             $Row->{InputStrg} = $Self->{LayoutObject}->BuildSelection(
@@ -819,8 +843,32 @@ sub SearchOptionList {
                 Name       => $Row->{FormKey},
                 SelectedID => $Row->{FormData},
                 Size       => 3,
-                Multiple   => 1,
+                Multiple   => $Multiple,
                 Class      => 'Modernize',
+            );
+
+            next ROW;
+        }
+
+        if ( $Row->{Type} eq 'Checkbox' ) {
+
+            # get form data
+            $Row->{FormData} = $Kernel::OM->Get('Kernel::System::Web::Request')->GetParam( Param => $Row->{FormKey} );
+
+            # parse the input text block
+            $Self->{LayoutObject}->Block(
+                Name => 'Checkbox',
+                Data => {
+                    Name    => $Row->{FormKey},
+                    Title   => $Row->{FormKey},
+                    Content => $Row->{FormKey},
+                    Checked => $Row->{FormData} || '',
+                },
+            );
+
+            # add the input string
+            $Row->{InputStrg} = $Self->{LayoutObject}->Output(
+                TemplateFile => 'LinkObject',
             );
 
             next ROW;

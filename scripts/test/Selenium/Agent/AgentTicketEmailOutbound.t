@@ -20,38 +20,32 @@ $Selenium->RunTest(
 
         # get needed objects
         my $ConfigObject       = $Kernel::OM->Get('Kernel::Config');
-        my $SysConfigObject    = $Kernel::OM->Get('Kernel::System::SysConfig');
         my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
         my $TicketObject       = $Kernel::OM->Get('Kernel::System::Ticket');
 
         # get helper object
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-                }
-        );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
         # disable check email addresses
-        $ConfigObject->Set(
+        $Helper->ConfigSettingChange(
             Key   => 'CheckEmailAddresses',
             Value => 0,
         );
 
         # do not check RichText
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'Frontend::RichText',
             Value => 0
         );
 
         # do not check service and type
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'Ticket::Service',
             Value => 0
         );
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'Ticket::Type',
             Value => 0
@@ -93,7 +87,7 @@ $Selenium->RunTest(
         );
 
         # enable test dynamic field to show in AgentTicketEmailOutbound screen
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'Ticket::Frontend::AgentTicketEmailOutbound###DynamicField',
             Value => {
@@ -200,7 +194,7 @@ $Selenium->RunTest(
 
         $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $("li.ui-menu-item:visible").length' );
 
-        $Selenium->find_element("//*[text()='$AutoCompleteString']")->click();
+        $Selenium->find_element("//*[text()='$AutoCompleteString']")->VerifiedClick();
         $Selenium->find_element( "#Subject",    'css' )->send_keys("TestSubject");
         $Selenium->find_element( "#ToCustomer", 'css' )->VerifiedSubmit();
 

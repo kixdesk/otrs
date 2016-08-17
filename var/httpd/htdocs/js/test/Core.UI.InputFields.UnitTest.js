@@ -16,7 +16,9 @@ Core.UI.InputFields = (function (Namespace) {
 
         var $TestForm;
 
-        module('Core.UI.InputFields');
+        QUnit.config.reorder = false;
+
+        QUnit.module('Core.UI.InputFields');
 
         Core.Config.AddConfig({
             InputFieldsActivated: 1
@@ -36,9 +38,9 @@ Core.UI.InputFields = (function (Namespace) {
         /*
         * Initialize all fields in form
         */
-        test('Initialize fields', function (Assert) {
+        QUnit.test('Initialize fields', function (Assert) {
 
-            Assert.expect(12);
+            Assert.expect(14);
 
             Core.UI.InputFields.Activate('*');
 
@@ -57,11 +59,10 @@ Core.UI.InputFields = (function (Namespace) {
             /*
             * Expand, make selection and close multiselect field
             */
-            test('Check multiselect field', function (Assert) {
+            QUnit.test('Check multiselect field (expand)', function (Assert) {
 
                 var $SelectObj = $Element,
                     $SearchObj = $('#' + Core.App.EscapeSelector($SelectObj.data('modernized'))),
-                    $InputContainerObj = $SelectObj.prev(),
                     $InputListContainerObj,
                     $Nodes,
                     Selection = ['1', '2', '4'],
@@ -69,9 +70,9 @@ Core.UI.InputFields = (function (Namespace) {
                     SelectableOptionNumber = $SelectObj.find('option').not('[value=""],[disabled="disabled"]').length,
                     ListNumber,
                     ExpandSubscription,
-                    CloseSubscription,
-                    Done1 = Assert.async(),
-                    Done2 = Assert.async();
+                    Done1 = Assert.async();
+
+                Assert.expect(4);
 
                 // Define event subscription before the event itself - Wait for the event to finish
                 ExpandSubscription = Core.App.Subscribe('Event.UI.InputFields.Expanded', function () {
@@ -103,6 +104,17 @@ Core.UI.InputFields = (function (Namespace) {
 
                 // Trigger focus handler
                 $SearchObj.triggerHandler('focus.InputField');
+            });
+
+            QUnit.test('Check multiselect field (close)', function (Assert) {
+
+                var $SelectObj = $Element,
+                    $SearchObj = $('#' + Core.App.EscapeSelector($SelectObj.data('modernized'))),
+                    $InputContainerObj = $SelectObj.prev(),
+                    CloseSubscription,
+                    Done2 = Assert.async();
+
+                Assert.expect(1);
 
                 // Define event subscription before the event itself - Wait for the event to finish
                 CloseSubscription = Core.App.Subscribe('Event.UI.InputFields.Closed', function () {
@@ -126,22 +138,21 @@ Core.UI.InputFields = (function (Namespace) {
             /*
             * Expand, make selection, close and deselect single select field
             */
-            test('Check single select field', function (Assert) {
+            QUnit.test('Check single select field (expand)', function (Assert) {
 
                 var $SelectObj = $Element,
                     $SearchObj = $('#' + Core.App.EscapeSelector($SelectObj.data('modernized'))),
                     Selection = "6",
                     $Nodes,
                     OptionNumber = $SelectObj.find('option').not("[value='']").length,
-                    $InputContainerObj = $SelectObj.prev(),
                     $InputListContainerObj,
                     ListNumber,
                     ExpandSubscription,
-                    CloseSubscription,
-                    Done1 = Assert.async(),
-                    Done2 = Assert.async();
+                    Done1 = Assert.async();
 
-               // Define event subscription before the event itself - Wait for the event to finish
+                Assert.expect(2);
+
+                // Define event subscription before the event itself - Wait for the event to finish
                 ExpandSubscription = Core.App.Subscribe('Event.UI.InputFields.Expanded', function () {
                     Core.App.Unsubscribe(ExpandSubscription);
 
@@ -162,6 +173,18 @@ Core.UI.InputFields = (function (Namespace) {
 
                 // Trigger focus handler
                 $SearchObj.triggerHandler('focus.InputField');
+
+            });
+
+            QUnit.test('Check single select field (close)', function (Assert) {
+
+                var $SelectObj = $Element,
+                    $SearchObj = $('#' + Core.App.EscapeSelector($SelectObj.data('modernized'))),
+                    $InputContainerObj = $SelectObj.prev(),
+                    CloseSubscription,
+                    Done2 = Assert.async();
+
+                Assert.expect(2);
 
                 // Define event subscription before the event itself - Wait for the event to finish
                 CloseSubscription = Core.App.Subscribe('Event.UI.InputFields.Closed', function () {
@@ -184,22 +207,19 @@ Core.UI.InputFields = (function (Namespace) {
         });
 
         // Check if modified tree selection successfully expands (bug#12017)
-        test('Check field with tree selection', function (Assert) {
+        QUnit.test('Check field with tree selection (expand)', function (Assert) {
             var $SelectObj = $('#TestForm select#SingleSelect'),
                 $SearchObj = $('#' + Core.App.EscapeSelector($SelectObj.data('modernized'))),
                 $LeafOptions = $('<option value="11">&nbsp;&nbsp;Sub-entry 1</option><option value="12">&nbsp;&nbsp;Sub-entry 2</option><option value="13">&nbsp;&nbsp;Sub-entry 3</option>'),
                 $Nodes,
                 OptionNumber = $SelectObj.find('option').not("[value='']").length,
                 OptionNumberTotal = $SelectObj.find('option').length,
-                $InputContainerObj = $SelectObj.prev(),
                 $InputListContainerObj,
                 ListNumber,
                 ExpandSubscription,
-                CloseSubscription,
-                Done1 = Assert.async(),
-                Done2 = Assert.async();
+                Done1 = Assert.async();
 
-            Assert.expect(4);
+            Assert.expect(2);
 
             // Append leaves
             $LeafOptions.insertAfter($SelectObj.find('option[value="1"]'));
@@ -222,6 +242,18 @@ Core.UI.InputFields = (function (Namespace) {
 
             // Trigger focus handler
             $SearchObj.triggerHandler('focus.InputField');
+
+        });
+
+        QUnit.test('Check field with tree selection (close)', function (Assert) {
+
+            var $SelectObj = $('#TestForm select#SingleSelect'),
+                $SearchObj = $('#' + Core.App.EscapeSelector($SelectObj.data('modernized'))),
+                $InputContainerObj = $SelectObj.prev(),
+                CloseSubscription,
+                Done2 = Assert.async();
+
+            Assert.expect(2);
 
             // Define event subscription before the event itself - Wait for the event to finish
             CloseSubscription = Core.App.Subscribe('Event.UI.InputFields.Closed', function () {
@@ -250,7 +282,7 @@ Core.UI.InputFields = (function (Namespace) {
         // Also initialize new field
         Core.UI.InputFields.Activate('*');
 
-        test('Check unavailable field', function (Assert) {
+        QUnit.test('Check unavailable field', function (Assert) {
 
             var $SelectObj = $('#UnavailableSelect'),
                 $SearchObj = $('#' + $SelectObj.data('modernized'));
@@ -261,12 +293,36 @@ Core.UI.InputFields = (function (Namespace) {
             Assert.equal($SearchObj.attr('title'), Core.Language.Translate('Not available'), 'Check if field has appropriate title');
         });
 
+        $TestForm.append('<div class="Field"><select class="Validate_Required Modernize" id="SingleSelectClear" name="SingleSelectClear"><option value="">-</option><option value="1" selected>Entry 1</option><option value="2">Entry 2</option><option value="-" disabled="disabled">Entry 3</option><option value="4">Entry 4</option><option value="-" disabled="disabled">Entry 5</option><option value="6">Entry 6</option></select></div>');
+
+        // Also initialize new field
+        Core.UI.InputFields.Activate('*');
+
+        // check if field is cleared properly when the original select loses it's options
+        QUnit.test('Check field clearance', function (Assert) {
+
+            var $SelectObj = $('#SingleSelectClear'),
+                $InputContainerObj = $SelectObj.prev();
+
+            Assert.expect(2);
+
+            Assert.equal($InputContainerObj.find('.InputField_Selection').find('.Text').text(), 'Entry 1', 'Check if initial selection is correct');
+
+            // now remove the options from the original select and add an empty one
+            $SelectObj.find('option').remove();
+            $SelectObj.append('<option value="">-</option>');
+            $SelectObj.triggerHandler('redraw.InputField');
+
+            // the selected value should be gone now
+            Assert.equal($InputContainerObj.find('.InputField_Selection').length, 0, 'Check if the field still has any selection');
+        });
+
         /*
         * Turn off Expand, make selection and close multiselect field
         */
-        test('Revert fields', function (Assert) {
+        QUnit.test('Revert fields', function (Assert) {
 
-            Assert.expect(6);
+            Assert.expect(7);
 
             Core.UI.InputFields.Deactivate('*');
 

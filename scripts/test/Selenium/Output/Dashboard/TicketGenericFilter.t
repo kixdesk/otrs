@@ -19,11 +19,6 @@ $Selenium->RunTest(
     sub {
 
         # get needed objects
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-            },
-        );
         my $Helper       = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
         my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
@@ -92,20 +87,16 @@ $Selenium->RunTest(
         my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
 
         # get config objects
-        my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
-        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+        my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
         # turn on the CustomerUserID column by default
         my $Config = $ConfigObject->Get('DashboardBackend')->{'0120-TicketNew'};
         $Config->{DefaultColumns}->{CustomerUserID} = '2';
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'DashboardBackend###0120-TicketNew',
             Value => $Config,
         );
-
-        # allow mod_perl to pick up the changed configuration
-        sleep 1;
 
         # refresh dashboard screen and clean it's cache
         $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
@@ -133,7 +124,7 @@ $Selenium->RunTest(
         else {
 
             # click on column setting filter for the first customer in TicketNew generic dashboard overview
-            $Selenium->find_element("//a[contains(\@title, \'CustomerUserID\' )]")->click();
+            $Selenium->find_element("//a[contains(\@title, \'CustomerUserID\' )]")->VerifiedClick();
 
             # select the first test CustomerUserID as filter for TicketNew generic dashboard overview
             my $ParentElement = $Selenium->find_element( "div.ColumnSettingsBox", 'css' );
@@ -172,7 +163,7 @@ $Selenium->RunTest(
             );
 
             # click on column setting filter for CustomerUserID in TicketNew generic dashboard overview
-            $Selenium->find_element("//a[contains(\@title, \'CustomerUserID\' )]")->click();
+            $Selenium->find_element("//a[contains(\@title, \'CustomerUserID\' )]")->VerifiedClick();
             sleep 1;
 
             # wait for AJAX to finish
@@ -182,7 +173,7 @@ $Selenium->RunTest(
             );
 
             # delete the current filter
-            $Selenium->find_element( "a.DeleteFilter", 'css' )->click();
+            $Selenium->find_element( "a.DeleteFilter", 'css' )->VerifiedClick();
 
             # wait for AJAX to finish
             $Selenium->WaitFor(
@@ -191,7 +182,7 @@ $Selenium->RunTest(
             );
 
             # click on column setting filter for CustomerUserID in TicketNew generic dashboard overview
-            $Selenium->find_element("//a[contains(\@title, \'CustomerUserID\' )]")->click();
+            $Selenium->find_element("//a[contains(\@title, \'CustomerUserID\' )]")->VerifiedClick();
 
             # select test CustomerUserID as filter for TicketNew generic dashboard overview
             $ParentElement = $Selenium->find_element( "div.ColumnSettingsBox", 'css' );
@@ -231,7 +222,7 @@ $Selenium->RunTest(
 
             # cleanup
             # click on column setting filter for CustomerUserID in TicketNew generic dashboard overview
-            $Selenium->find_element("//a[contains(\@title, \'CustomerUserID\' )]")->click();
+            $Selenium->find_element("//a[contains(\@title, \'CustomerUserID\' )]")->VerifiedClick();
             sleep 1;
 
             # wait for AJAX to finish
@@ -241,7 +232,7 @@ $Selenium->RunTest(
             );
 
             # delete the current filter
-            $Selenium->find_element( "a.DeleteFilter", 'css' )->click();
+            $Selenium->find_element( "a.DeleteFilter", 'css' )->VerifiedClick();
 
             # wait for AJAX to finish
             $Selenium->WaitFor(
@@ -254,14 +245,11 @@ $Selenium->RunTest(
         $Config                                     = $ConfigObject->Get('DashboardBackend')->{'0120-TicketNew'};
         $Config->{DefaultColumns}->{CustomerUserID} = '0';
         $Config->{DefaultColumns}->{CustomerID}     = '2';
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'DashboardBackend###0120-TicketNew',
             Value => $Config,
         );
-
-        # allow mod_perl to pick up the changed configuration
-        sleep 1;
 
         # refresh dashboard screen and clean it's cache
         $Kernel::OM->Get('Kernel::System::Cache')->CleanUp(
@@ -289,7 +277,7 @@ $Selenium->RunTest(
         else {
 
             # click on column setting filter for the first customer in TicketNew generic dashboard overview
-            $Selenium->find_element("//a[contains(\@title, \'CustomerID\' )]")->click();
+            $Selenium->find_element("//a[contains(\@title, \'CustomerID\' )]")->VerifiedClick();
 
             # select the third test CustomerID as filter for TicketNew generic dashboard overview
             my $ParentElement = $Selenium->find_element( "div.ColumnSettingsBox", 'css' );
@@ -328,7 +316,7 @@ $Selenium->RunTest(
             );
 
             # click on column setting filter for CustomerID in TicketNew generic dashboard overview
-            $Selenium->find_element("//a[contains(\@title, \'CustomerID\' )]")->click();
+            $Selenium->find_element("//a[contains(\@title, \'CustomerID\' )]")->VerifiedClick();
             sleep 1;
 
             # wait for AJAX to finish
@@ -338,7 +326,7 @@ $Selenium->RunTest(
             );
 
             # delete the current filter
-            $Selenium->find_element( "a.DeleteFilter", 'css' )->click();
+            $Selenium->find_element( "a.DeleteFilter", 'css' )->VerifiedClick();
 
             # wait for AJAX to finish
             $Selenium->WaitFor(

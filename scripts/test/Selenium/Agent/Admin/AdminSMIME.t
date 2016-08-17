@@ -20,11 +20,6 @@ $Selenium->RunTest(
     sub {
 
         # get helper object
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-            },
-        );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
         # create test user and login
@@ -39,8 +34,7 @@ $Selenium->RunTest(
         );
 
         # get needed objects
-        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
-        my $ConfigObject    = $Kernel::OM->Get('Kernel::Config');
+        my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
         # create directory for certificates and private keys
         my $CertPath    = $ConfigObject->Get('Home') . "/var/tmp/certs";
@@ -54,14 +48,11 @@ $Selenium->RunTest(
         my $ScriptAlias = $ConfigObject->Get('ScriptAlias');
 
         # disabled SMIME in config
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'SMIME',
             Value => 0
         );
-
-        # let mod_perl / Apache2::Reload pick up the changed configuration
-        sleep 1;
 
         # navigate to AdminSMIME screen
         $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AdminSMIME");
@@ -77,26 +68,23 @@ $Selenium->RunTest(
         );
 
         # enable SMIME in config
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'SMIME',
             Value => 1
         );
 
         # set SMIME paths in sysConfig
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'SMIME::CertPath',
             Value => '/SomeCertPath',
         );
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'SMIME::PrivatePath',
             Value => '/SomePrivatePath',
         );
-
-        # let mod_perl / Apache2::Reload pick up the changed configuration
-        sleep 1;
 
         # refresh AdminSMIME screen
         $Selenium->VerifiedRefresh();
@@ -112,19 +100,16 @@ $Selenium->RunTest(
         );
 
         # set SMIME paths in sysConfig
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'SMIME::CertPath',
             Value => $CertPath,
         );
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'SMIME::PrivatePath',
             Value => $PrivatePath,
         );
-
-        # let mod_perl / Apache2::Reload pick up the changed configuration
-        sleep 1;
 
         # refresh AdminSMIME screen
         $Selenium->VerifiedRefresh();
@@ -155,7 +140,7 @@ $Selenium->RunTest(
         $Selenium->find_element("//button[\@type='submit']")->VerifiedClick();
 
         # click to 'Read certificate', verify JS will open a pop up window
-        $Selenium->find_element( ".CertificateRead", 'css' )->click();
+        $Selenium->find_element( ".CertificateRead", 'css' )->VerifiedClick();
 
         $Selenium->WaitFor( WindowCount => 2 );
         my $Handles = $Selenium->get_window_handles();
@@ -171,12 +156,13 @@ $Selenium->RunTest(
         $Selenium->switch_to_window( $Handles->[0] );
 
         # check for test created Certificate and Privatekey and delete them
-        for my $TestSMIME (qw(key cert))
-        {
+        for my $TestSMIME (qw(key cert)) {
+
             $Self->True(
                 index( $Selenium->get_page_source(), "Type=$TestSMIME;Filename=" ) > -1,
-                "Test $TestSMIME SMIME found on table"
+                "Test $TestSMIME SMIME found on table",
             );
+
             $Selenium->find_element("//a[contains(\@href, \'Subaction=Delete;Type=$TestSMIME;Filename=' )]")->click();
 
             # accept JS delete confirmation dialog
@@ -191,9 +177,7 @@ $Selenium->RunTest(
                 "Directory deleted - '$Directory'",
             );
         }
-
     }
-
 );
 
 1;

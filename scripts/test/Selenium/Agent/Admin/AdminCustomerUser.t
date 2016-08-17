@@ -19,15 +19,10 @@ $Selenium->RunTest(
     sub {
 
         # get helper object
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-            },
-        );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
         # disable check email address
-        $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'CheckEmailAddresses',
             Value => 0
@@ -231,10 +226,15 @@ $Selenium->RunTest(
 
         # click on '[ Customer User ]' to test customer user creation from iframe
         $Selenium->find_element( "#OptionCustomer", 'css' )->click();
+
+        sleep 1;
+
         $Selenium->switch_to_frame( $Selenium->find_element( '.TextOption', 'css' ) );
 
         # click to 'Add customer user'
         $Selenium->find_element("//button[\@class='CallForAction Fullsize Center']")->VerifiedClick();
+
+        sleep 1;
 
         # create new test customer user
         my $RandomID3 = 'TestCustomer' . $Helper->GetRandomID();

@@ -24,18 +24,13 @@ $Selenium->RunTest(
     sub {
 
         # get helper object
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-            },
-        );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
         # get config object
         my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
         # don't check email address validity
-        $ConfigObject->Set(
+        $Helper->ConfigSettingChange(
             Key   => 'CheckEmailAddresses',
             Value => 0,
         );
@@ -105,7 +100,7 @@ $Selenium->RunTest(
         # disable customer user email uniqueness check temporarily
         my $CustomerUserConfig = $ConfigObject->Get('CustomerUser');
         $CustomerUserConfig->{CustomerUserEmailUniqCheck} = 0;
-        $ConfigObject->Set(
+        $Helper->ConfigSettingChange(
             Key   => 'CustomerUser',
             Value => $CustomerUserConfig,
         );

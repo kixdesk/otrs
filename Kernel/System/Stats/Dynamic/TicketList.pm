@@ -394,6 +394,19 @@ sub GetObjectAttributes {
             },
         },
         {
+            Name             => Translatable('Pending until time'),
+            UseAsXvalue      => 0,
+            UseAsValueSeries => 0,
+            UseAsRestriction => 1,
+            Element          => 'PendingUntilTime',
+            TimePeriodFormat => 'DateInputFormat',                    # 'DateInputFormatLong',
+            Block            => 'Time',
+            Values           => {
+                TimeStart => 'TicketPendingTimeNewerDate',
+                TimeStop  => 'TicketPendingTimeOlderDate',
+            },
+        },
+        {
             Name             => Translatable('Close Time'),
             UseAsXvalue      => 0,
             UseAsValueSeries => 0,

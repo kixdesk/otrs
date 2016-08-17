@@ -18,23 +18,17 @@ my $Selenium = $Kernel::OM->Get('Kernel::System::UnitTest::Selenium');
 $Selenium->RunTest(
     sub {
 
-        # get needed objects
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-            },
-        );
-        my $Helper          = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
-        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+        # get helper object
+        my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
         # disable check email address
-        $Kernel::OM->Get('Kernel::Config')->Set(
+        $Helper->ConfigSettingChange(
             Key   => 'CheckEmailAddresses',
             Value => 0
         );
 
         # enable CustomerGroupSupport
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'CustomerGroupSupport',
             Value => 1
@@ -142,7 +136,7 @@ $Selenium->RunTest(
         # change test CustomerUser relations for test Group
         $Selenium->find_element( $GroupRandomID, 'link_text' )->VerifiedClick();
 
-        $Selenium->find_element("//input[\@value='$UserRandomID'][\@name='rw']")->click();
+        $Selenium->find_element("//input[\@value='$UserRandomID'][\@name='rw']")->VerifiedClick();
         $Selenium->find_element("//button[\@value='Save'][\@type='submit']")->VerifiedClick();
 
         # check test Group relation for test CustomerUser
@@ -161,8 +155,8 @@ $Selenium->RunTest(
         );
 
         # remove test Group relation for test CustomerUser
-        $Selenium->find_element("//input[\@value='$GroupID'][\@name='rw']")->click();
-        $Selenium->find_element("//input[\@value='$GroupID'][\@name='ro']")->click();
+        $Selenium->find_element("//input[\@value='$GroupID'][\@name='rw']")->VerifiedClick();
+        $Selenium->find_element("//input[\@value='$GroupID'][\@name='ro']")->VerifiedClick();
         $Selenium->find_element("//button[\@value='Save'][\@type='submit']")->VerifiedClick();
 
         # get DB object

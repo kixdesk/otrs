@@ -19,16 +19,11 @@ $Selenium->RunTest(
     sub {
 
         # get needed objects
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-            },
-        );
         my $Helper       = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
         my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
         # do not check email addresses
-        $ConfigObject->Set(
+        $Helper->ConfigSettingChange(
             Key   => 'CheckEmailAddresses',
             Value => 0,
         );
@@ -120,11 +115,11 @@ $Selenium->RunTest(
                 for my $TicketID (@TicketIDs) {
 
                     # select all created test tickets
-                    $Selenium->find_element("//input[\@type='checkbox'][\@value='$TicketID']")->click();
+                    $Selenium->find_element("//input[\@type='checkbox'][\@value='$TicketID']")->VerifiedClick();
                 }
 
                 # click on bulk action and switch window
-                $Selenium->find_element("//*[text()='Bulk']")->click();
+                $Selenium->find_element("//*[text()='Bulk']")->VerifiedClick();
 
                 $Selenium->WaitFor( WindowCount => 2 );
                 my $Handles = $Selenium->get_window_handles();
@@ -141,7 +136,6 @@ $Selenium->RunTest(
                 $Selenium->WaitFor( WindowCount => 1 );
                 $Selenium->switch_to_window( $Handles->[0] );
                 $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AgentTicketStatusView");
-
             }
 
         }

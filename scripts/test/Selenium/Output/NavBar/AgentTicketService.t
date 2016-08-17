@@ -19,11 +19,6 @@ $Selenium->RunTest(
     sub {
 
         # get helper object
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-            },
-        );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
         # create test user and login
@@ -37,21 +32,15 @@ $Selenium->RunTest(
             Password => $TestUserLogin,
         );
 
-        # get SysConfigObject object
-        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
+        my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
 
         # disable frontend service module
-        my %FrontendAgentTicketService = $SysConfigObject->ConfigItemGet(
-            Name => 'Frontend::Module###AgentTicketService',
-        );
-        $SysConfigObject->ConfigItemUpdate(
+        my $FrontendAgentTicketService = $ConfigObject->Get('Frontend::Module')->{AgentTicketService};
+        $Helper->ConfigSettingChange(
             Valid => 0,
             Key   => 'Frontend::Module###AgentTicketService',
-            Value => \%FrontendAgentTicketService,
+            Value => $FrontendAgentTicketService,
         );
-
-        # sleep a little bit to allow mod_perl to pick up the changed config files
-        sleep 1;
 
         # check for NavBarAgentTicketService button when frontend service module is disabled
         my $ScriptAlias = $Kernel::OM->Get('Kernel::Config')->Get('ScriptAlias');
@@ -62,17 +51,18 @@ $Selenium->RunTest(
         ) || die;
 
         # enable frontend service module
-        $SysConfigObject->ConfigItemReset(
-            Name => 'Frontend::Module###AgentTicketService',
+        $Helper->ConfigSettingChange(
+            Valid => 1,
+            Key   => 'Frontend::Module###AgentTicketService',
+            Value => $FrontendAgentTicketService,
         );
 
         # disable service feature
-        $SysConfigObject->ConfigItemReset(
-            Name => 'Ticket::Service',
+        $Helper->ConfigSettingChange(
+            Valid => 1,
+            Key   => 'Ticket::Service',
+            Value => 0,
         );
-
-        # sleep a little bit to allow mod_perl to pick up the changed config files
-        sleep 1;
 
         # check for NavBarAgentTicketService button
         # when frontend service module is enabled but service feature is disabled
@@ -83,14 +73,11 @@ $Selenium->RunTest(
         ) || die;
 
         # enable ticket service feature
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'Ticket::Service',
             Value => 1,
         );
-
-        # sleep a little bit to allow mod_perl to pick up the changed config files
-        sleep 1;
 
         # check for NavBarAgentTicketService button when frontend service module and service feature are enabled
         $Selenium->VerifiedRefresh();
@@ -101,20 +88,16 @@ $Selenium->RunTest(
 
         # disable NavBarAgentTicketSearch feature and verify that 'Service view' button
         # is present when frontend service module is enabled and service features is disabled
-        my %NavBarAgentTicketService = $SysConfigObject->ConfigItemGet(
-            Name => 'Frontend::NavBarModule###7-AgentTicketService',
-        );
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 0,
             Key   => 'Frontend::NavBarModule###7-AgentTicketService',
-            Value => \%NavBarAgentTicketService,
+            Value => {},
         );
-        $SysConfigObject->ConfigItemReset(
-            Name => 'Ticket::Service',
+        $Helper->ConfigSettingChange(
+            Valid => 1,
+            Key   => 'Ticket::Service',
+            Value => 0,
         );
-
-        # sleep a little bit to allow mod_perl to pick up the changed config files
-        sleep 1;
 
         $Selenium->VerifiedRefresh();
         $Self->True(

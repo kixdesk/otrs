@@ -12,6 +12,8 @@ use utf8;
 
 use vars (qw($Self));
 
+use Kernel::Config;
+
 # get helper object
 my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
@@ -84,6 +86,49 @@ my %User = $Kernel::OM->Get('Kernel::System::User')->GetUserData(
 $Self->False(
     $User{UserID},
     'Rollback worked',
+);
+
+my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+$Self->Is(
+    scalar $ConfigObject->Get('nonexisting_dummy'),
+    undef,
+    "Config setting does not exist yet",
+);
+
+my $Value = q$1'"$;
+
+$Helper->ConfigSettingChange(
+    Valid => 1,
+    Key   => 'nonexisting_dummy',
+    Value => $Value,
+);
+
+$Self->Is(
+    scalar $ConfigObject->Get('nonexisting_dummy'),
+    $Value,
+    "Runtime config updated",
+);
+
+my $NewConfigObject = Kernel::Config->new();
+$Self->Is(
+    scalar $NewConfigObject->Get('nonexisting_dummy'),
+    $Value,
+    "System config updated",
+);
+
+$Helper->ConfigSettingCleanup();
+
+$NewConfigObject = Kernel::Config->new();
+$Self->Is(
+    scalar $NewConfigObject->Get('nonexisting_dummy'),
+    undef,
+    "System config reset",
+);
+
+$Self->Is(
+    scalar $ConfigObject->Get('nonexisting_dummy'),
+    $Value,
+    "Runtime config still has the changed value, it will be destroyed at the end of every test",
 );
 
 1;

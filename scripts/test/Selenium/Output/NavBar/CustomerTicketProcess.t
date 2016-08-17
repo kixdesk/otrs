@@ -26,11 +26,6 @@ $Selenium->RunTest(
     sub {
 
         # get helper object
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-            },
-        );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
         # create and log in test user
@@ -88,9 +83,6 @@ $Selenium->RunTest(
 
         # synchronize process
         $Selenium->find_element("//a[contains(\@href, \'Subaction=ProcessSync' )]")->VerifiedClick();
-
-        # let mod_perl / Apache2::Reload pick up the changed configuration
-        sleep 3;
 
         # get process list
         my $List = $ProcessObject->ProcessList(
@@ -223,9 +215,6 @@ $Selenium->RunTest(
         $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AdminProcessManagement");
         $Selenium->find_element("//a[contains(\@href, \'Subaction=ProcessSync' )]")->VerifiedClick();
 
-        # let mod_perl / Apache2::Reload pick up the changed configuration
-        sleep 3;
-
         # log in customer
         $Selenium->Login(
             Type     => 'Customer',
@@ -242,18 +231,14 @@ $Selenium->RunTest(
 
         # check if NavBarCustomerTicketProcess button is available
         # when NavBarCustomerTicketProcess module is disabled and no process is available
-        my $SysConfigObject             = $Kernel::OM->Get('Kernel::System::SysConfig');
-        my %NavBarCustomerTicketProcess = $SysConfigObject->ConfigItemGet(
+        my %NavBarCustomerTicketProcess = $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemGet(
             Name => 'CustomerFrontend::NavBarModule###10-CustomerTicketProcesses',
         );
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 0,
             Key   => 'CustomerFrontend::NavBarModule###10-CustomerTicketProcesses',
             Value => \%NavBarCustomerTicketProcess,
         );
-
-        # sleep a little bit to allow mod_perl to pick up the changed config files
-        sleep 3;
 
         $Selenium->VerifiedRefresh();
         $Self->True(

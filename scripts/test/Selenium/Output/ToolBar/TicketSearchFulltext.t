@@ -19,11 +19,6 @@ $Selenium->RunTest(
     sub {
 
         # get helper object
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-            },
-        );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
         # enable tool bar TicketSearchFulltext
@@ -37,12 +32,12 @@ $Selenium->RunTest(
             Size        => '10',
         );
 
-        $Kernel::OM->Get('Kernel::Config')->Set(
+        $Helper->ConfigSettingChange(
             Key   => 'Frontend::ToolBarModule###12-Ticket::TicketSearchFulltext',
             Value => \%TicketSearchFulltext,
         );
 
-        $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'Frontend::ToolBarModule###12-Ticket::TicketSearchFulltext',
             Value => \%TicketSearchFulltext,

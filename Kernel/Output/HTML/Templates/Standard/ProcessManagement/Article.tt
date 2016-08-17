@@ -47,9 +47,6 @@
     [% Data.LabelBody | html %]:
 </label>
 <div class="RichTextField">
-[% RenderBlockStart("RichText") %]
-[% InsertTemplate("RichTextEditor.tt") %]
-[% RenderBlockEnd("RichText") %]
     <textarea id="RichText" class="RichText [% Data.ValidateRequired | html %] [% Data.BodyServerError | html %] Validate_DependingRequiredAND Validate_Depending_Subject" name="Body" rows="15" cols="[% Config("Ticket::Frontend::TextAreaNote") %]">[% Data.Body | html %]</textarea>
     <div id="RichTextError" class="TooltipErrorMessage"><p>[% Translate("This field is required.") | html %]</p></div>
     <div id="RichTextServerError" class="TooltipErrorMessage"><p>[% Translate("This field is required.") | html %]</p></div>
@@ -62,13 +59,6 @@
         <li>
             [% Data.Filename | html %] ([% Data.Filesize | html %])
             <button type="submit" id="AttachmentDelete[% Data.FileID | html %]" name="AttachmentDelete[% Data.FileID | html %]" value="[% Translate("Delete") | html %]" class="SpacingLeft">[% Translate("Delete") | html %]</button>
-[% WRAPPER JSOnDocumentComplete %]
-<script type="text/javascript">//<![CDATA[
-    $('#AttachmentDelete[% Data.FileID | html %]').bind('click', function () {
-        Core.Form.Validate.DisableValidation($('#AttachmentDelete[% Data.FileID | html %]').closest('form'));
-    });
-//]]></script>
-[% END %]
         </li>
 [% RenderBlockEnd("Attachment") %]
         <li>
@@ -76,15 +66,6 @@
             <input type="hidden" id="AttachmentUpload" name="AttachmentUpload" value="0" />
         </li>
     </ul>
-[% WRAPPER JSOnDocumentComplete %]
-<script type="text/javascript">//<![CDATA[
-    $('#FileUpload').bind('change', function (Event) {
-        var $Form = $('#FileUpload').closest('form');
-        Core.Form.Validate.DisableValidation($Form);
-        $Form.find('#AttachmentUpload').val('1').end().submit();
-    });
-//]]></script>
-[% END %]
 </div>
 <div class="Clear"></div>
 [% RenderBlockStart("TimeUnitsLabel") %]

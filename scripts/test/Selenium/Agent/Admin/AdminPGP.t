@@ -21,11 +21,6 @@ $Selenium->RunTest(
     sub {
 
         # get helper object
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-            },
-        );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
         # create test user and login
@@ -39,18 +34,12 @@ $Selenium->RunTest(
             Password => $TestUserLogin,
         );
 
-        # get sysconfig object
-        my $SysConfigObject = $Kernel::OM->Get('Kernel::System::SysConfig');
-
         # disable PGP in config
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'PGP',
             Value => 0,
         );
-
-        # let mod_perl / Apache2::Reload pick up the changed configuration
-        sleep 1;
 
         # get config object
         my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
@@ -76,21 +65,18 @@ $Selenium->RunTest(
         );
 
         # enable PGP in config
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'PGP',
             Value => 1,
         );
 
         # set PGP path in config
-        $SysConfigObject->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'PGP::Options',
             Value => "--homedir $PGPPath --batch --no-tty --yes",
         );
-
-        # let mod_perl / Apache2::Reload pick up the changed configuration
-        sleep 1;
 
         # refresh AdminSPGP screen
         $Selenium->VerifiedRefresh();
@@ -145,11 +131,11 @@ $Selenium->RunTest(
         $Selenium->find_element( "#Search", 'css' )->VerifiedSubmit();
 
         # set test PGP in config so we can delete them
-        $ConfigObject->Set(
+        $Helper->ConfigSettingChange(
             Key   => 'PGP',
             Value => 1,
         );
-        $ConfigObject->Set(
+        $Helper->ConfigSettingChange(
             Key   => 'PGP::Options',
             Value => "--homedir $PGPPath --batch --no-tty --yes",
         );

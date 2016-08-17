@@ -19,17 +19,9 @@ $Selenium->RunTest(
     sub {
 
         # get helper object
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-            },
-        );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
-        # get config object
-        my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
-
-        $ConfigObject->Set(
+        $Helper->ConfigSettingChange(
             Key   => 'CheckEmailAddresses',
             Value => 0,
         );
@@ -45,12 +37,12 @@ $Selenium->RunTest(
             Size        => '10',
         );
 
-        $ConfigObject->Set(
+        $Helper->ConfigSettingChange(
             Key   => 'Frontend::ToolBarModule###14-Ticket::CICSearchCustomerUser',
             Value => \%CICSearchCustomerUser,
         );
 
-        $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'Frontend::ToolBarModule###14-Ticket::CICSearchCustomerUser',
             Value => \%CICSearchCustomerUser,
@@ -116,7 +108,7 @@ $Selenium->RunTest(
         my $AutoCCSearch = "\"$TestCustomerLogin $TestCustomerLogin\" <$TestCustomerEmail>";
         $Selenium->find_element( "#ToolBarCICSearchCustomerUser", 'css' )->send_keys($TestCustomerLogin);
         $Selenium->WaitFor( JavaScript => 'return typeof($) === "function" && $("li.ui-menu-item:visible").length' );
-        $Selenium->find_element("//*[text()='$AutoCCSearch']")->click();
+        $Selenium->find_element("//*[text()='$AutoCCSearch']")->VerifiedClick();
 
         # verify search
         $Self->True(

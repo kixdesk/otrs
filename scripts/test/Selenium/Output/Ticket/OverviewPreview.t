@@ -19,11 +19,6 @@ $Selenium->RunTest(
     sub {
 
         # get helper object
-        $Kernel::OM->ObjectParamAdd(
-            'Kernel::System::UnitTest::Helper' => {
-                RestoreSystemConfiguration => 1,
-                }
-        );
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
         # get sort attributes config params
@@ -34,11 +29,11 @@ $Selenium->RunTest(
         );
 
         # defines from which ticket attributes the agent can select the result order
-        $Kernel::OM->Get('Kernel::Config')->Set(
+        $Helper->ConfigSettingChange(
             Key   => 'TicketOverviewMenuSort###SortAttributes',
             Value => \%SortOverview,
         );
-        $Kernel::OM->Get('Kernel::System::SysConfig')->ConfigItemUpdate(
+        $Helper->ConfigSettingChange(
             Valid => 1,
             Key   => 'TicketOverviewMenuSort###SortAttributes',
             Value => \%SortOverview,
@@ -127,7 +122,7 @@ $Selenium->RunTest(
         );
 
         # set 10 tickets per page
-        $Selenium->find_element( "a#ShowContextSettingsDialog", 'css' )->click();
+        $Selenium->find_element( "a#ShowContextSettingsDialog", 'css' )->VerifiedClick();
         $Selenium->execute_script(
             "\$('#UserTicketOverviewPreviewPageShown').val('10').trigger('redraw.InputField').trigger('change');"
         );

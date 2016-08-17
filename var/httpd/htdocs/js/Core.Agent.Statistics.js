@@ -31,7 +31,7 @@ Core.Agent.Statistics = (function (TargetNS) {
      */
     TargetNS.InitAddScreen = function () {
 
-        $('.BigButtons a').bind('click', function () {
+        $('.BigButtons a').on('click', function () {
             var $Link = $(this);
 
             if ($Link.hasClass('Disabled')) {
@@ -70,7 +70,14 @@ Core.Agent.Statistics = (function (TargetNS) {
         $ContainerElement.find('.Element' + Core.App.EscapeSelector(ElementName)).clone().appendTo($FormFieldsElement);
     };
 
-    function InitEditDialog() {
+    /**
+     * @name InitEditScreen
+     * @memberof Core.Agent.Statistics
+     * @function
+     * @description
+     *      Initialize the edit screen.
+     */
+    TargetNS.InitEditScreen = function() {
         $('button.EditXAxis, button.EditYAxis, button.EditRestrictions').on('click', function() {
             var ConfigurationType = $(this).data('configuration-type'),
                 ConfigurationLimit = $(this).data('configuration-limit'),
@@ -168,19 +175,111 @@ Core.Agent.Statistics = (function (TargetNS) {
 
             return false;
         });
+
+       $('.SwitchPreviewFormat').on('click', function() {
+            var Format = $(this).data('format'),
+                FormatCleaned = Format.replace('::', ''),
+                StatsPreviewResult;
+
+            StatsPreviewResult = Core.Data.CopyObject(Core.Config.Get('PreviewResult'));
+            $('.SwitchPreviewFormat').removeClass('Active');
+            $(this).addClass('Active');
+            $('.PreviewContent:visible').hide();
+            $('svg.PreviewContent').empty();
+            $('#PreviewContent' + FormatCleaned).show();
+            if (Format.match(/D3/)) {
+                Core.UI.AdvancedChart.Init(
+                    Format,
+                    StatsPreviewResult,
+                    'svg#PreviewContent' + FormatCleaned,
+                    {
+                        HideLegend: true
+                    }
+                );
+            }
+            return false;
+        });
+        $('.SwitchPreviewFormat').first().trigger('click');
     }
 
     /**
-     * @name InitEditScreen
+     * @name Init
      * @memberof Core.Agent.Statistics
      * @function
      * @description
-     *      Initialize the edit screen.
+     *      This function initializes the module functionality.
      */
-    TargetNS.InitEditScreen = function () {
-        InitEditDialog();
+    TargetNS.Init = function () {
+        var RestrictionElements,
+            XAxisElements,
+            YAxisElements,
+            D3Data;
 
+        // Initialize the Add screen
+        TargetNS.InitAddScreen();
+
+        // Initialize the Edit screen
+        TargetNS.InitEditScreen();
+
+        // Bind event on delete stats button
+        $('.StatDelete').on('click', function (Event) {
+            var ConfirmText = '"' + $(this).data('stat-title') + '"\n\n' + Core.Language.Translate("Do you really want to delete this statistic?");
+            if (!window.confirm(ConfirmText)) {
+                Event.stopPropagation();
+                Event.preventDefault();
+                return false;
+            }
+        });
+
+        // Bind event on start stats button
+        $('#StartStatistic').on('click', function () {
+            var Format = $('#Format').val(),
+                $Form = $(this).parents('form');
+
+            // Open both HTML and PDF output in a popup because PDF is shown inline
+            if (Format === 'Print' || Format.match(/D3/)) {
+                $Form.attr('target', '_blank');
+            }
+            else {
+                $Form.removeAttr('target');
+            }
+        });
+
+        RestrictionElements = Core.Config.Get('RestrictionElements');
+        if (typeof RestrictionElements !== 'undefined') {
+            $.each(RestrictionElements, function() {
+                TargetNS.ElementAdd('Restrictions', this);
+            });
+        }
+
+        XAxisElements = Core.Config.Get('XAxisElements');
+        if (typeof XAxisElements !== 'undefined') {
+            $.each(XAxisElements, function() {
+                TargetNS.ElementAdd('XAxis', this);
+            });
+        }
+
+        YAxisElements = Core.Config.Get('YAxisElements');
+        if (typeof YAxisElements !== 'undefined') {
+            $.each(YAxisElements, function() {
+                TargetNS.ElementAdd('YAxis', this);
+            });
+        }
+
+        D3Data = Core.Config.Get('D3Data');
+        if (typeof D3Data !== 'undefined') {
+            Core.UI.AdvancedChart.Init(
+                D3Data.Format,
+                D3Data.RawData,
+                'svg#ChartContent',
+                {
+                    Duration: 250
+                }
+            );
+        }
     };
+
+    Core.Init.RegisterNamespace(TargetNS, 'APP_MODULE');
 
     return TargetNS;
 }(Core.Agent.Statistics || {}));

@@ -54,12 +54,58 @@ $Selenium->RunTest(
             UserLogin => $TestUserLogin,
         );
 
+        # get dynamic field object
+        my $DynamicFieldObject = $Kernel::OM->Get('Kernel::System::DynamicField');
+
+        # create test dynamic field of type date
+        my $DynamicFieldName = 'Test' . $RandomID;
+        my $DynamicFieldID   = $DynamicFieldObject->DynamicFieldAdd(
+            Name       => $DynamicFieldName,
+            Label      => $DynamicFieldName,
+            FieldOrder => 9991,
+            FieldType  => 'Date',
+            ObjectType => 'Ticket',
+            Config     => {
+                DefaultValue    => 0,
+                YearsInFuture   => 0,
+                YearsInPast     => 0,
+                YearsPeriod     => 0,
+                DateRestriction => 'DisablePastDates',    # turn on validation of no past dates
+            },
+            ValidID => 1,
+            UserID  => $UserID,
+        );
+
+        $Self->True(
+            $DynamicFieldID,
+            "Dynamic field $DynamicFieldName - ID $DynamicFieldID - created",
+        );
+
+        # create also a dynamic field of type checkbox
+        my $CheckboxDynamicFieldName = 'TestCheckbox' . $RandomID;
+        my $CheckboxDynamicFieldID   = $DynamicFieldObject->DynamicFieldAdd(
+            Name       => $CheckboxDynamicFieldName,
+            Label      => $CheckboxDynamicFieldName,
+            FieldOrder => 9992,
+            FieldType  => 'Checkbox',
+            ObjectType => 'Ticket',
+            Config     => {
+                DefaultValue => 0,
+            },
+            ValidID => 1,
+            UserID  => $UserID,
+        );
+
+        $Self->True(
+            $DynamicFieldID,
+            "Dynamic field $CheckboxDynamicFieldName - ID $CheckboxDynamicFieldID - created",
+        );
+
         # get ticket object
         my $TicketObject = $Kernel::OM->Get('Kernel::System::Ticket');
 
         # create test tickets
-        my $TestTicketRandomID = $Helper->GetRandomID();
-        my $TestTicketTitle    = "Test Ticket $TestTicketRandomID Generic Agent";
+        my $TestTicketTitle = "Test Ticket $RandomID Generic Agent";
         my @TicketNumbers;
         for ( 1 .. 20 ) {
 
@@ -111,10 +157,19 @@ $Selenium->RunTest(
         $Selenium->execute_script('$(".WidgetSimple.Collapsed .WidgetAction.Toggle a").click();');
 
         # create test job
-        my $GenericTicketSearch = "*Ticket $TestTicketRandomID Generic*";
+        my $GenericTicketSearch = "*Ticket $RandomID Generic*";
         my $GenericAgentJob     = "GenericAgent" . $RandomID;
         $Selenium->find_element( "#Profile", 'css' )->send_keys($GenericAgentJob);
         $Selenium->find_element( "#Title",   'css' )->send_keys($GenericTicketSearch);
+
+        # set test dynamic field to date in the past, but do not activate it
+        # validation used to kick in even if checkbox in front wasn't activated
+        # see bug#12210 for more information
+        $Selenium->find_element( "#DynamicField_${DynamicFieldName}Year", 'css' )->send_keys('2015');
+
+        $Selenium->find_element( "#DynamicField_${CheckboxDynamicFieldName}Used1", 'css' )->VerifiedClick();
+
+        # save job
         $Selenium->find_element( "#Profile", 'css' )->VerifiedSubmit();
 
         # check if test job show on AdminGenericAgent
@@ -158,6 +213,14 @@ $Selenium->RunTest(
 
         # toggle Execute Ticket Commands widget
         $Selenium->execute_script('$(".WidgetSimple.Collapsed .WidgetAction.Toggle a").click();');
+
+        # check if the checkbox from dynamicfield is selected
+        $Self->Is(
+            $Selenium->find_element( "#DynamicField_${CheckboxDynamicFieldName}Used1", 'css' )->is_selected(),
+            1,
+            "$CheckboxDynamicFieldName Used1 is selected",
+        );
+
         $Selenium->execute_script("\$('#NewDelete').val('1').trigger('redraw.InputField').trigger('change');");
         $Selenium->find_element( "#Profile", 'css' )->VerifiedSubmit();
 
@@ -238,7 +301,16 @@ $Selenium->RunTest(
         $Selenium->find_element("//a[contains(\@href, \'Subaction=Delete;Profile=$GenericAgentJob\' )]")
             ->VerifiedClick();
 
-    }
+        # delete created test dynamic field
+        my $Success = $DynamicFieldObject->DynamicFieldDelete(
+            ID     => $DynamicFieldID,
+            UserID => $UserID,
+        );
+        $Self->True(
+            $Success,
+            "Dynamic field - ID $DynamicFieldID - deleted",
+        );
+    },
 
 );
 

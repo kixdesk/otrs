@@ -30,8 +30,8 @@ Core.Agent.Dashboard = (function (TargetNS) {
      */
     TargetNS.InitCustomerIDAutocomplete = function ($Input) {
         $Input.autocomplete({
-            minLength: Core.Config.Get('CustomerIDAutocomplete.MinQueryLength'),
-            delay: Core.Config.Get('CustomerIDAutocomplete.QueryDelay'),
+            minLength: Core.Config.Get('CustomerIDAutocomplete').MinQueryLength,
+            delay: Core.Config.Get('CustomerIDAutocomplete').QueryDelay,
             open: function() {
                 // force a higher z-index than the overlay/dialog
                 $(this).autocomplete('widget').addClass('ui-overlay-autocomplete');
@@ -43,7 +43,7 @@ Core.Agent.Dashboard = (function (TargetNS) {
                     Subaction: 'SearchCustomerID',
                     IncludeUnknownTicketCustomers: parseInt(Core.Config.Get('IncludeUnknownTicketCustomers'), 10),
                     Term: Request.term,
-                    MaxResults: Core.Config.Get('CustomerIDAutocomplete.MaxResultsDisplayed')
+                    MaxResults: Core.Config.Get('CustomerIDAutocomplete').MaxResultsDisplayed
                 };
 
                 // if an old ajax request is already running, stop the old request and start the new one
@@ -87,8 +87,8 @@ Core.Agent.Dashboard = (function (TargetNS) {
      */
     TargetNS.InitCustomerUserAutocomplete = function ($Input) {
         $Input.autocomplete({
-            minLength: Core.Config.Get('CustomerUserAutocomplete.MinQueryLength'),
-            delay: Core.Config.Get('CustomerUserAutocomplete.QueryDelay'),
+            minLength: Core.Config.Get('CustomerUserAutocomplete').MinQueryLength,
+            delay: Core.Config.Get('CustomerUserAutocomplete').QueryDelay,
             open: function() {
                 // force a higher z-index than the overlay/dialog
                 $(this).autocomplete('widget').addClass('ui-overlay-autocomplete');
@@ -99,7 +99,7 @@ Core.Agent.Dashboard = (function (TargetNS) {
                     Action: 'AgentCustomerSearch',
                     IncludeUnknownTicketCustomers: parseInt(Core.Config.Get('IncludeUnknownTicketCustomers'), 10),
                     Term: Request.term,
-                    MaxResults: Core.Config.Get('CustomerUserAutocomplete.MaxResultsDisplayed')
+                    MaxResults: Core.Config.Get('CustomerUserAutocomplete').MaxResultsDisplayed
                 };
 
                 // if an old ajax request is already running, stop the old request and start the new one
@@ -145,8 +145,8 @@ Core.Agent.Dashboard = (function (TargetNS) {
      */
     TargetNS.InitUserAutocomplete = function ($Input, Subaction) {
         $Input.autocomplete({
-            minLength: Core.Config.Get('UserAutocomplete.MinQueryLength'),
-            delay: Core.Config.Get('UserAutocomplete.QueryDelay'),
+            minLength: Core.Config.Get('UserAutocomplete').MinQueryLength,
+            delay: Core.Config.Get('UserAutocomplete').QueryDelay,
             open: function() {
                 // force a higher z-index than the overlay/dialog
                 $(this).autocomplete('widget').addClass('ui-overlay-autocomplete');
@@ -157,7 +157,7 @@ Core.Agent.Dashboard = (function (TargetNS) {
                     Action: 'AgentUserSearch',
                     Subaction: Subaction,
                     Term: Request.term,
-                    MaxResults: Core.Config.Get('UserAutocomplete.MaxResultsDisplayed')
+                    MaxResults: Core.Config.Get('UserAutocomplete').MaxResultsDisplayed
                 };
 
                 // if an old ajax request is already running, stop the old request and start the new one
@@ -257,21 +257,41 @@ Core.Agent.Dashboard = (function (TargetNS) {
      */
     TargetNS.Init = function () {
         var StatsData,
-            DashboardStats = Core.Config.Get('DashboardStatsIDs');
+            DashboardStats = Core.Config.Get('DashboardStatsIDs'),
+            WidgetContainers = Core.Config.Get('ContainerNames');
 
         // initializes dashboards stats widget functionality
-        $.each(DashboardStats, function (Index, Value) {
-            StatsData = Core.Config.Get('StatsData' + Value);
-            if (typeof StatsData !== 'undefined') {
-                TargetNS.InitStatsWidget(StatsData);
-            }
-        });
+        if (typeof DashboardStats !== 'undefined') {
+            $.each(DashboardStats, function (Index, Value) {
+                StatsData = Core.Config.Get('StatsData' + Value);
+                if (typeof StatsData !== 'undefined') {
+                    TargetNS.InitStatsWidget(StatsData);
+                }
+            });
+        }
 
         // initializes events ticket calendar
         EventsTicketCalendarInitialization();
 
         // Initializes events customer user list
         InitCustomerUserList();
+
+        // Initializes preferences for widget containers
+        // (if widgets are available)
+        if (typeof WidgetContainers !== 'undefined') {
+            $.each(WidgetContainers, function (Index, Value) {
+                InitWidgetContainerPref(Value);
+            });
+        }
+
+        // Initializes refresh event for user online widget
+        InitUserOnlineRefresh();
+
+        // Initializes events ticket queue overview
+        InitTicketQueueOverview();
+
+        // Initialize dashboard ticket stats
+        InitDashboardTicketStats();
 
         // Disable drag and drop of dashboard widgets on mobile / touch devices
         // to prevent accidentally moved widgets while tabbing/swiping
@@ -698,6 +718,28 @@ Core.Agent.Dashboard = (function (TargetNS) {
     }
 
     /**
+     * @name InitUserOnlineRefresh
+     * @memberof Core.Agent.Dashboard
+     * @function
+     * @description
+     *      Initializes the event to refresh user online widget
+     */
+    function InitUserOnlineRefresh () {
+        var UserOnlineRefresh = Core.Config.Get('CanRefresh');
+
+        if (typeof UserOnlineRefresh !== 'undefined') {
+            $('#Dashboard' + Core.App.EscapeSelector(UserOnlineRefresh.Name) + '_toggle').on('click', function() {
+                $('#Dashboard' + Core.App.EscapeSelector(UserOnlineRefresh.Name) + '-box').addClass('Loading');
+                Core.AJAX.ContentUpdate($('#Dashboard' + Core.App.EscapeSelector(UserOnlineRefresh.Name)), Core.Config.Get('Baselink') + 'Action=' + Core.Config.Get('Action') +';Subaction=Element;Name=' + UserOnlineRefresh.Name, function () {
+                    $('#Dashboard' + Core.App.EscapeSelector(UserOnlineRefresh.Name) + '-box').removeClass('Loading');
+                });
+                clearTimeout(Core.Config.Get('Timer_' + UserOnlineRefresh.NameHTML));
+                return false;
+            });
+        }
+    }
+
+    /**
      * @name InitStatsWidget
      * @memberof Core.Agent.Dashboard
      * @param {Object} StatsData - Hash with different config options.
@@ -706,29 +748,26 @@ Core.Agent.Dashboard = (function (TargetNS) {
      *      Initializes the stats dashboard widget functionality.
      */
      TargetNS.InitStatsWidget = function (StatsData) {
-        (function(){
-            var Timeout = 500;
-            // check if the container is already expanded, otherwise the graph
-            // would have the wrong size after the widget settings have been saved
-            // and the content is being reloaded using ajax.
-            if ($('#GraphWidget' + Core.App.EscapeSelector(StatsData.Name)).parent().is(':visible')) {
-                Timeout = 0;
-            }
+        var Timeout = 500;
+        // check if the container is already expanded, otherwise the graph
+        // would have the wrong size after the widget settings have been saved
+        // and the content is being reloaded using ajax.
+        if ($('#GraphWidget' + Core.App.EscapeSelector(StatsData.Name)).parent().is(':visible')) {
+            Timeout = 0;
+        }
 
-            window.setTimeout(function () {
-                Core.UI.AdvancedChart.Init(
-                    StatsData.Format,
-                    Core.JSON.Parse(StatsData.StatResultData),
-                    'svg.GraphWidget' + StatsData.Name,
-                    {
-                        PreferencesKey: 'GraphWidget' + StatsData.Name,
-                        PreferencesData: StatsData.Preferences,
-                        Duration: 250
-                    }
-                );
-            }, Timeout);
-
-        }());
+        window.setTimeout(function () {
+            Core.UI.AdvancedChart.Init(
+                StatsData.Format,
+                Core.JSON.Parse(StatsData.StatResultData),
+                'svg.GraphWidget' + StatsData.Name,
+                {
+                    PreferencesKey: 'GraphWidget' + StatsData.Name,
+                    PreferencesData: StatsData.Preferences,
+                    Duration: 250
+                }
+            );
+        }, Timeout);
 
         $('#DownloadSVG' + Core.App.EscapeSelector(StatsData.Name)).on('click', function() {
             this.href = Core.UI.AdvancedChart.ConvertSVGtoBase64($('#GraphWidgetContainer' + Core.App.EscapeSelector(StatsData.Name)));
@@ -749,6 +788,76 @@ Core.Agent.Dashboard = (function (TargetNS) {
             $('#GraphWidgetLink' + Core.App.EscapeSelector(StatsData.Name)).find('.WidgetTooltip').addClass('Hidden');
         });
     };
+
+    /**
+     * @private
+     * @name InitWidgetContainerPref
+     * @memberof Core.Agent.Dashboard
+     * @function
+     * @param {Object} Params - Hash with container name, with and without ('-') to support IE
+     * @description
+     *      Initializes preferences for widget containers
+     */
+    function InitWidgetContainerPref (Params) {
+        TargetNS.RegisterUpdatePreferences($('#Dashboard' + Core.App.EscapeSelector(Params.Name) + '_submit'), 'Dashboard' + Core.App.EscapeSelector(Params.Name),$('#Dashboard' + Core.App.EscapeSelector(Params.NameForm) + '_setting_form'));
+        Core.UI.RegisterToggleTwoContainer($('#Dashboard' + Core.App.EscapeSelector(Params.Name) + '-toggle'), $('#Dashboard' + Core.App.EscapeSelector(Params.Name) + '-setting'), $('#Dashboard' + Core.App.EscapeSelector(Params.Name)));
+        Core.UI.RegisterToggleTwoContainer($('#Dashboard' + Core.App.EscapeSelector(Params.Name) + '_cancel'), $('#Dashboard' + Core.App.EscapeSelector(Params.Name) + '-setting'), $('#Dashboard' + Core.App.EscapeSelector(Params.Name)));
+    }
+
+    /**
+     * @private
+     * @name InitTicketQueueOverview
+     * @memberof Core.Agent.Dashboard
+     * @function
+     * @description
+     *      This function initialize ticket queue overview in Dashboard screen.
+     */
+    function InitTicketQueueOverview () {
+        var QueueOverview = Core.Config.Get('QueueOverview');
+
+        if (typeof QueueOverview !== 'undefined') {
+            Core.Config.Set('RefreshSeconds_' + QueueOverview.NameHTML, parseInt(QueueOverview.RefreshTime, 10) || 0);
+            if (Core.Config.Get('RefreshSeconds_' + QueueOverview.NameHTML)) {
+                Core.Config.Set('Timer_' + QueueOverview.NameHTML, window.setTimeout(function() {
+
+                    $('#Dashboard' + Core.App.EscapeSelector(QueueOverview.Name) + '-box').addClass('Loading');
+                    Core.AJAX.ContentUpdate($('#Dashboard' + Core.App.EscapeSelector(QueueOverview.Name)), Core.Config.Get('Baselink') + 'Action=' + Core.Config.Get('Action') + ';Subaction=Element;Name=' + QueueOverview.Name, function () {
+                        $('#Dashboard' + Core.App.EscapeSelector(QueueOverview.Name) + '-box').removeClass('Loading');
+                        InitTicketQueueOverview();
+                    });
+                    clearTimeout(Core.Config.Get('Timer_' + QueueOverview.NameHTML));
+                }, Core.Config.Get('RefreshSeconds_' + QueueOverview.NameHTML) * 1000));
+            }
+        }
+    }
+
+    /**
+     * @private
+     * @name InitDashboardTicketStats
+     * @memberof Core.Agent.Dashboard
+     * @function
+     * @description
+     *      This function initialize dashboard ticket stats widget.
+     */
+    function InitDashboardTicketStats () {
+        var Timeout = 500,
+            DashboardTicketStats = Core.Config.Get('DashboardTicketStats');
+
+        if (typeof DashboardTicketStats !== 'undefined') {
+
+            window.setTimeout(function () {
+                Core.UI.AdvancedChart.Init(
+                    "D3::SimpleLineChart",
+                    Core.JSON.Parse(DashboardTicketStats.ChartData),
+                    'svg.GraphWidget' + DashboardTicketStats.Key,
+                    {
+                        Duration: 250,
+                        ReduceXTicks: false
+                    }
+                );
+            }, Timeout);
+        }
+    }
 
     Core.Init.RegisterNamespace(TargetNS, 'APP_MODULE');
 

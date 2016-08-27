@@ -1,4 +1,7 @@
 #6.0.0.beta1 2016-??-??
+ - 2016-08-25 Added possibility to send encrypted emails to multiple recipients.
+ - 2016-06-07 Added index for searching dynamic field text values.
+ - 2016-08-18 Added per-address email loop protection setting (PostmasterMaxEmailsPerAddress), thanks to Moritz Lenz.
  - 2016-08-12 Fixed bug#[12229](http://bugs.otrs.org/show_bug.cgi?id=12229) - Queue is not selectable if the name contains "<" or ">" characters.
  - 2015-08-01 Updated CPAN module CGI to version 4.32.
  - 2016-07-26 Added a new postmaster filter to decrypt and handle encrypted mails.
@@ -49,6 +52,24 @@
  - 2015-11-27 Improved command Maint::Ticket::InvalidUserCleanup. It can now now both unlock tickets of invalid users and also (optionally) change their state to make sure they will not be overlooked. Thanks to Moritz Lenz @ noris networks.
 
 #5.0.13 2016-??-??
+ - 2016-08-26 Fixed bug#[12233](http://bugs.otrs.org/show_bug.cgi?id=12233) - ACL for restricting services depending on queue does not work as exspected.
+ - 2016-08-26 Fixed bug#[10608](http://bugs.otrs.org/show_bug.cgi?id=10608) - Can't search tickets by CustomerID that contain quotes.
+ - 2016-08-26 Fixed bug#[12270](http://bugs.otrs.org/show_bug.cgi?id=12270) - AdminMailAccount - Mail account password returned back to form.
+ - 2016-08-26 Fixed bug#[12259](http://bugs.otrs.org/show_bug.cgi?id=12259) - Images in a note are lost when using "reply to note".
+ - 2016-08-26 Fixed bug#[12263](http://bugs.otrs.org/show_bug.cgi?id=12263) - Time-related search attributes only cover last 10 years.
+ - 2016-08-22 Fixed bug#[12264](http://bugs.otrs.org/show_bug.cgi?id=12264) - Incorrect link to ACL documentation.
+ - 2016-08-19 Fixed bug#[12236](http://bugs.otrs.org/show_bug.cgi?id=12236) - ACL - negate a role.
+ - 2016-08-19 Fixed bug#[12242](http://bugs.otrs.org/show_bug.cgi?id=12242) - GenericInterface Dynamic Fields with multiple values not possible (TicketCreate).
+ - 2016-08-19 Fixed bug#[12261](http://bugs.otrs.org/show_bug.cgi?id=12261) - SupportBundle generator dialog has double separator lines.
+ - 2016-08-19 Fixed bug#[12225](http://bugs.otrs.org/show_bug.cgi?id=12225) - actual day can not be added if a dynamic field (Date) requires future date.
+ - 2016-08-19 Fixed bug#[12258](http://bugs.otrs.org/show_bug.cgi?id=12258) - restore.pl doesn't work with crypted passwords.
+ - 2016-08-19 Fixed bug#[12222](http://bugs.otrs.org/show_bug.cgi?id=12222) - closing curly bracket in hyperlink.
+ - 2016-08-19 Fixed bug#[12210](http://bugs.otrs.org/show_bug.cgi?id=12210) - GenericAgent can not be submitted if a dynamic field (Date) requires future date.
+ - 2016-08-19 Fixed bug#[12243](http://bugs.otrs.org/show_bug.cgi?id=12243) - Modern input fields leaves broken selection on search field remove.
+ - 2016-08-19 Fixed bug#[12256](http://bugs.otrs.org/show_bug.cgi?id=12256) - Parameter "Active" in method QueueStandardTemplateMemberAdd is optional but method returns if not set.
+ - 2016-08-19 Fixed bug#[9460](http://bugs.otrs.org/show_bug.cgi?id=9460) - Under some circumstances OTRS does not join Tickets to the Customernumber.
+ - 2016-08-18 Fixed bug#[12246](http://bugs.otrs.org/show_bug.cgi?id=12246) - HTML mail not displayed correctly.
+ - 2016-08-18 Fixed bug#[12252](http://bugs.otrs.org/show_bug.cgi?id=12252) - Support Bundle cannot be created via GUI if cloud services are disabled.
  - 2016-08-15 Fixed bug#[12245](http://bugs.otrs.org/show_bug.cgi?id=12245) - Missing information for Article Dynamic Fields update event thanks to Rene (rwese).
  - 2016-08-15 Fixed a problem with the axis exchange not working correctly in the OTRS Business Solution™ reports.
  - 2016-08-12 Fixed bug#[4389](http://bugs.otrs.org/show_bug.cgi?id=4389) - Singular/plural issue with age.

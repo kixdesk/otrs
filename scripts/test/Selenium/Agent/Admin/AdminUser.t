@@ -21,6 +21,12 @@ $Selenium->RunTest(
         # get helper object
         my $Helper = $Kernel::OM->Get('Kernel::System::UnitTest::Helper');
 
+        # do not check email addresses
+        $Helper->ConfigSettingChange(
+            Key   => 'CheckEmailAddresses',
+            Value => 0,
+        );
+
         # create test user and login
         my $TestUserLogin = $Helper->TestUserCreate(
             Groups => ['admin'],
@@ -81,6 +87,9 @@ $Selenium->RunTest(
             '1',
             'Client side validation correctly detected missing input value',
         );
+
+        # Reload page
+        $Selenium->VerifiedGet("${ScriptAlias}index.pl?Action=AdminUser;Subaction=Add");
 
         # create a real test agent
         my $UserRandomID = 'TestAgent' . $Helper->GetRandomID();

@@ -52,6 +52,15 @@
  - 2015-11-27 Improved command Maint::Ticket::InvalidUserCleanup. It can now now both unlock tickets of invalid users and also (optionally) change their state to make sure they will not be overlooked. Thanks to Moritz Lenz @ noris networks.
 
 #5.0.13 2016-??-??
+ - 2016-09-05 Added new console commands to print (Maint::Log::Print) and clear (Maint::Log::Clear) the OTRS log.
+ - 2016-09-05 Followup for bug#[11922](http://bugs.otrs.org/show_bug.cgi?id=11922) - Notification to non RealCustomer.
+ - 2016-09-02 Fixed bug#[12199](http://bugs.otrs.org/show_bug.cgi?id=12199) - ProcessManagement: Comma separated Lastnames are not shown correctly on article creation.
+ - 2016-09-02 Fixed bug#[12079](http://bugs.otrs.org/show_bug.cgi?id=12079) - Regex in transition condition not working for empty match.
+ - 2016-09-02 Added additional positive ResponseCodes for Generic Interface transport module REST, thanks to Robert Ullrich.
+ - 2016-09-02 Fixed bug#[12280](http://bugs.otrs.org/show_bug.cgi?id=12280) - GenericAgent job does not send out notifications, even when the option is set to Yes. Thanks to Johannes Hoerburger.
+ - 2016-09-02 Fixed bug#[12257](http://bugs.otrs.org/show_bug.cgi?id=12257) - Ticketnotification: Ticketfilter of a uncheck checkbox doesn't work.
+ - 2016-09-02 Fixed bug#[7288](http://bugs.otrs.org/show_bug.cgi?id=7288) - Hyperlink creation cuts URLs after a closing square bracket.
+ - 2016-09-01 Fixed bug#[12106](http://bugs.otrs.org/show_bug.cgi?id=12106) - Use of uninitialized value in splice.
  - 2016-08-26 Fixed bug#[12233](http://bugs.otrs.org/show_bug.cgi?id=12233) - ACL for restricting services depending on queue does not work as exspected.
  - 2016-08-26 Fixed bug#[10608](http://bugs.otrs.org/show_bug.cgi?id=10608) - Can't search tickets by CustomerID that contain quotes.
  - 2016-08-26 Fixed bug#[12270](http://bugs.otrs.org/show_bug.cgi?id=12270) - AdminMailAccount - Mail account password returned back to form.

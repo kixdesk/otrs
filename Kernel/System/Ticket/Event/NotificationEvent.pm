@@ -287,6 +287,17 @@ sub Run {
                     next BUNDLE;
                 }
 
+                # Check if notification should not send to the customer.
+                if (
+                    $Bundle->{Recipient}->{Type} eq 'Customer'
+                    && $ConfigObject->Get('CustomerNotifyJustToRealCustomer')
+                    )
+                {
+
+                    # return if not customer user ID
+                    return if !$Bundle->{Recipient}->{UserID};
+                }
+
                 my $Success = $Self->_SendRecipientNotification(
                     TicketID              => $Param{Data}->{TicketID},
                     Notification          => $Bundle->{Notification},
@@ -441,9 +452,24 @@ sub _NotificationFilter {
 
                 next VALUE if !$IsNotificationEventCondition;
 
+                # Get match value from the dynamic field backend, if applicable (bug#12257).
+                my $MatchValue;
+                my $SearchFieldParameter = $DynamicFieldBackendObject->SearchFieldParameterBuild(
+                    DynamicFieldConfig => $DynamicFieldConfig,
+                    Profile            => {
+                        $Key => $Value,
+                    },
+                );
+                if ( defined $SearchFieldParameter->{Parameter}->{Equals} ) {
+                    $MatchValue = $SearchFieldParameter->{Parameter}->{Equals};
+                }
+                else {
+                    $MatchValue = $Value;
+                }
+
                 $Match = $DynamicFieldBackendObject->ObjectMatch(
                     DynamicFieldConfig => $DynamicFieldConfig,
-                    Value              => $Value,
+                    Value              => $MatchValue,
                     ObjectAttributes   => $Param{Ticket},
                 );
 

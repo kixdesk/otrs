@@ -2536,6 +2536,22 @@
             <Array></Array>
         </Setting>
     </ConfigItem>
+    <ConfigItem Name="Ticket::Frontend::AgentTicketSearch###Defaults###ServiceIDs" Required="0" Valid="0">
+        <Description Translatable="1">Defines the default shown ticket search attribute for ticket search screen.</Description>
+        <Group>Ticket</Group>
+        <SubGroup>Frontend::Agent::Ticket::ViewSearch</SubGroup>
+        <Setting>
+            <Array></Array>
+        </Setting>
+    </ConfigItem>
+    <ConfigItem Name="Ticket::Frontend::AgentTicketSearch###Defaults###SLAIDs" Required="0" Valid="0">
+        <Description Translatable="1">Defines the default shown ticket search attribute for ticket search screen.</Description>
+        <Group>Ticket</Group>
+        <SubGroup>Frontend::Agent::Ticket::ViewSearch</SubGroup>
+        <Setting>
+            <Array></Array>
+        </Setting>
+    </ConfigItem>
     <ConfigItem Name="Ticket::Frontend::AgentTicketSearch###Defaults###TicketCreateTimePoint" Required="0" Valid="0">
         <Description Translatable="1">Default data to use on attribute for ticket search screen. Example: "TicketCreateTimePointFormat=year;TicketCreateTimePointStart=Last;TicketCreateTimePoint=2;".</Description>
         <Group>Ticket</Group>
@@ -7800,7 +7816,7 @@
         </Setting>
     </ConfigItem>
     <ConfigItem Name="CustomerNotifyJustToRealCustomer" Required="1" Valid="1">
-        <Description Translatable="1">Sends customer notifications just to the mapped customer. Normally, if no customer is mapped, the latest customer sender gets the notification.</Description>
+        <Description Translatable="1">Sends customer notifications just to the mapped customer.</Description>
         <Group>Ticket</Group>
         <SubGroup>Core::Ticket</SubGroup>
         <Setting>
@@ -10019,7 +10035,6 @@
                 <Item>AgentTicketWatcher</Item>
                 <Item>AgentTicketZoom</Item>
                 <Item>AgentLinkObject</Item>
-                <Item>CustomerTicketMessage</Item>
                 <Item>CustomerTicketPrint</Item>
                 <Item>CustomerTicketProcess</Item>
                 <Item>CustomerTicketZoom</Item>

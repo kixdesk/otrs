@@ -482,10 +482,15 @@ sub Run {
 
         my $ImportedConfig;
 
+        my $Home = $Kernel::OM->Get('Kernel::Config')->Get('Home');
+
+        my $MainObject = $Kernel::OM->Get('Kernel::System::Main');
+
         # get web service name
         my $WebserviceName;
-
         my $ExampleWebServiceFilename = $ParamObject->GetParam( Param => 'ExampleWebService' ) || '';
+        my $FileWithoutExtension;
+
         if ($ExampleWebServiceFilename) {
             $ExampleWebServiceFilename =~ s{/+|\.{2,}}{}smx;    # remove slashes and ..
 
@@ -495,7 +500,35 @@ sub Run {
                 );
             }
 
-            my $Home    = $Kernel::OM->Get('Kernel::Config')->Get('Home');
+            # extract file name
+            $ExampleWebServiceFilename =~ m{(.*?)\.yml$}smx;
+            $FileWithoutExtension = $1;
+
+            # Run _pre.pm if available.
+            if ( -e "$Home/var/webservices/examples/" . $FileWithoutExtension . "_pre.pm" ) {
+
+                my $BackendName = 'var::webservices::examples::' . $FileWithoutExtension . '_pre';
+
+                my $Loaded = $MainObject->Require(
+                    $BackendName,
+                );
+
+                if ($Loaded) {
+                    my $BackendPre = $Kernel::OM->Get(
+                        $BackendName,
+                    );
+
+                    my %Status = $BackendPre->Run();
+                    if ( !$Status{Success} ) {
+
+                        # show the error screen
+                        return $LayoutObject->ErrorScreen(
+                            Message => $Status{Error},
+                        );
+                    }
+                }
+            }
+
             my $Content = $Kernel::OM->Get('Kernel::System::Main')->FileRead(
                 Location => "$Home/var/webservices/examples/$ExampleWebServiceFilename",
                 Mode     => 'utf8',
@@ -605,6 +638,33 @@ sub Run {
             ValidID => $WebserviceData->{ValidID},
             UserID  => $Self->{UserID},
         );
+
+        if (
+            $FileWithoutExtension
+            && -e "$Home/var/webservices/examples/" . $FileWithoutExtension . "_post.pm"
+            )
+        {
+            my $BackendName = 'var::webservices::examples::' . $FileWithoutExtension . '_post';
+
+            my $Loaded = $MainObject->Require(
+                $BackendName,
+            );
+
+            if ($Loaded) {
+                my $BackendPost = $Kernel::OM->Get(
+                    $BackendName,
+                );
+
+                my %Status = $BackendPost->Run();
+                if ( !$Status{Success} ) {
+
+                    # show the error screen
+                    return $LayoutObject->ErrorScreen(
+                        Message => $Status{Error},
+                    );
+                }
+            }
+        }
 
         # define notification
         my $Notify = $LayoutObject->{LanguageObject}->Translate(
@@ -839,7 +899,7 @@ sub _ShowEdit {
 
         my %Frontend;
 
-        if ( %ExampleWebServicesData && $Kernel::OM->Get('Kernel::System::OTRSBusiness')->OTRSBusinessIsInstalled() ) {
+        if (%ExampleWebServicesData) {
             $Frontend{ExampleWebServiceList} = $Kernel::OM->Get('Kernel::Output::HTML::Layout')->BuildSelection(
                 Name         => 'ExampleWebService',
                 Data         => \%ExampleWebServicesData,
@@ -848,6 +908,8 @@ sub _ShowEdit {
                 Class        => 'Modernize Validate_Required',
             );
         }
+
+        # Enable Example web services
         $LayoutObject->Block(
             Name => 'ExampleWebServices',
             Data => {
